@@ -9,7 +9,13 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<TACRMDbContext>(options =>
 	options.UseNpgsql(connectionString));
 
-builder.Services.AddScoped<IContactService, ContactService>();
+builder.Services.AddScoped<IContactsService, ContactsService>();
+builder.Services.AddScoped<ISaleProductsService, SaleProductsService>();
+builder.Services.AddScoped<ISalesService, SalesService>();
+builder.Services.AddScoped<ICalendarEventsService, CalendarEventsService>();
+builder.Services.AddScoped<IPaymentsService, PaymentsService>();
+builder.Services.AddScoped<IBudgetsService, BudgetsService>();
+builder.Services.AddScoped<IProvidersService, ProvidersService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

@@ -6,22 +6,16 @@ namespace TACRM.API.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class ContactsController : ControllerBase
+	public class ContactsController(IContactsService contactService, ILogger<ContactsController> logger) : ControllerBase
 	{
-		private readonly IContactService _contactService;
-		private readonly ILogger<ContactsController> _logger;
-
-		public ContactsController(IContactService contactService, ILogger<ContactsController> logger)
-		{
-			_contactService = contactService;
-			_logger = logger;
-		}
+		private readonly IContactsService _contactsService = contactService;
+		private readonly ILogger<ContactsController> _logger = logger;
 
 		// GET: api/contacts
 		[HttpGet]
 		public async Task<IActionResult> GetAllContacts()
 		{
-			var contacts = await _contactService.GetAllContactsAsync();
+			var contacts = await _contactsService.GetAllContactsAsync();
 			return Ok(contacts);
 		}
 
@@ -29,7 +23,7 @@ namespace TACRM.API.Controllers
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetContactById(int id)
 		{
-			var contact = await _contactService.GetContactByIdAsync(id);
+			var contact = await _contactsService.GetContactByIdAsync(id);
 			if (contact == null)
 			{
 				return NotFound();
@@ -46,7 +40,7 @@ namespace TACRM.API.Controllers
 				return BadRequest(ModelState);
 			}
 
-			var createdContact = await _contactService.CreateContactAsync(contact);
+			var createdContact = await _contactsService.CreateContactAsync(contact);
 			return CreatedAtAction(nameof(GetContactById), new { id = createdContact.ContactID }, createdContact);
 		}
 
@@ -59,7 +53,7 @@ namespace TACRM.API.Controllers
 				return BadRequest();
 			}
 
-			var updatedContact = await _contactService.UpdateContactAsync(contact);
+			var updatedContact = await _contactsService.UpdateContactAsync(contact);
 			if (updatedContact == null)
 			{
 				return NotFound();
@@ -72,7 +66,7 @@ namespace TACRM.API.Controllers
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteContact(int id)
 		{
-			var deleted = await _contactService.DeleteContactAsync(id);
+			var deleted = await _contactsService.DeleteContactAsync(id);
 			if (!deleted)
 			{
 				return NotFound();

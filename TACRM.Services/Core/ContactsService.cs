@@ -3,7 +3,7 @@ using TACRM.Services.Entities;
 
 namespace TACRM.Services.Core
 {
-	public interface IContactService
+	public interface IContactsService
 	{
 		Task<IEnumerable<Contact>> GetAllContactsAsync();
 		Task<Contact> GetContactByIdAsync(int id);
@@ -12,11 +12,11 @@ namespace TACRM.Services.Core
 		Task<bool> DeleteContactAsync(int id);
 	}
 
-	public class ContactService : IContactService
+	public class ContactsService : IContactsService
 	{
 		private readonly TACRMDbContext _dbContext;
 
-		public ContactService(TACRMDbContext dbContext)
+		public ContactsService(TACRMDbContext dbContext)
 		{
 			_dbContext = dbContext;
 		}
