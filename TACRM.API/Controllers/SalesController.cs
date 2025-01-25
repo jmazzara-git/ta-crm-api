@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TACRM.Services.Core;
 using TACRM.Services.Entities;
 
@@ -6,6 +7,7 @@ namespace TACRM.API.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
+	[Authorize]
 	public class SalesController : ControllerBase
 	{
 		private readonly ISalesService _salesService;
@@ -43,10 +45,19 @@ namespace TACRM.API.Controllers
 		{
 			if (id != sale.SaleID) return BadRequest();
 
-			var updatedSale = await _salesService.UpdateSaleAsync(sale);
-			if (updatedSale == null) return NotFound();
-
-			return Ok(updatedSale);
+			try
+			{
+				var updatedSale = await _salesService.UpdateSaleAsync(sale);
+				return Ok(updatedSale);
+			}
+			catch (UnauthorizedAccessException)
+			{
+				return Forbid();
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
 		}
 
 		[HttpDelete("{id}")]

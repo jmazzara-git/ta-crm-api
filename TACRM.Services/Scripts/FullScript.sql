@@ -12,10 +12,10 @@ GRANT ALL PRIVILEGES ON SCHEMA ta_crm TO ta_crm_user;
 -- Set default schema for this script
 SET search_path TO ta_crm;
 
--- Table for Tenants
-CREATE TABLE Tenants (
-    TenantID SERIAL PRIMARY KEY,
-    TenantName VARCHAR(255) NOT NULL,
+-- Table for Agencies
+CREATE TABLE Agencies (
+    AgencyID SERIAL PRIMARY KEY,
+    AgencyName VARCHAR(255) NOT NULL,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -23,18 +23,31 @@ CREATE TABLE Tenants (
 -- Table for Users
 CREATE TABLE Users (
     UserID SERIAL PRIMARY KEY,
-    TenantID INT NOT NULL, -- Foreign key to Tenants table
+    AgencyID INT, -- Foreign key to Agencies table, can be NULL for independent users
     Email VARCHAR(255) NOT NULL UNIQUE, -- Email registered in the 3rd party identity manager
     FullName VARCHAR(255),
+    UserType VARCHAR(50) NOT NULL, -- Type of user: Agent, Agency Owner, Admin
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (TenantID) REFERENCES Tenants(TenantID) ON DELETE CASCADE
+    FOREIGN KEY (AgencyID) REFERENCES Agencies(AgencyID) ON DELETE SET NULL
+);
+
+-- Table for Subscriptions
+CREATE TABLE Subscriptions (
+    SubscriptionID SERIAL PRIMARY KEY,
+    UserID INT NOT NULL, -- Foreign key to Users table
+    StartDate DATE NOT NULL, -- Subscription start date
+    EndDate DATE, -- Subscription end date, NULL if active
+    Status VARCHAR(50) NOT NULL, -- Subscription status: Active, Cancelled, Expired
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
 -- Table for Contacts
 CREATE TABLE Contacts (
     ContactID SERIAL PRIMARY KEY,
-    TenantID INT NOT NULL, -- Foreign key for multi-tenancy
+    UserID INT NOT NULL, -- Foreign key to Users table, representing the owner of the contact
     ContactSourceID INT, -- Foreign key to ContactSources table
     StatusID INT, -- Foreign key to ContactStatuses table
     Name VARCHAR(255) NOT NULL,
@@ -48,13 +61,9 @@ CREATE TABLE Contacts (
     Comments TEXT, -- Additional free-text information about the contact
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CreatedBy INT, -- Foreign key to Users table, who created the contact
-    UpdatedBy INT, -- Foreign key to Users table, who last updated the contact
-    FOREIGN KEY (TenantID) REFERENCES Tenants(TenantID) ON DELETE CASCADE,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
     FOREIGN KEY (ContactSourceID) REFERENCES ContactSources(ContactSourceID) ON DELETE SET NULL,
-    FOREIGN KEY (StatusID) REFERENCES ContactStatuses(StatusID) ON DELETE SET NULL,
-    FOREIGN KEY (CreatedBy) REFERENCES Users(UserID) ON DELETE SET NULL,
-    FOREIGN KEY (UpdatedBy) REFERENCES Users(UserID) ON DELETE SET NULL
+    FOREIGN KEY (StatusID) REFERENCES ContactStatuses(StatusID) ON DELETE SET NULL
 );
 
 -- Table for ContactSources
@@ -102,27 +111,19 @@ CREATE TABLE Budgets (
     TotalPrice DECIMAL(10, 2) NOT NULL DEFAULT 0.00, -- Total price of all products in the budget
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CreatedBy INT, -- Foreign key to Users table, who created the budget
-    UpdatedBy INT, -- Foreign key to Users table, who last updated the budget
-    FOREIGN KEY (ContactID) REFERENCES Contacts(ContactID) ON DELETE CASCADE,
-    FOREIGN KEY (CreatedBy) REFERENCES Users(UserID) ON DELETE SET NULL,
-    FOREIGN KEY (UpdatedBy) REFERENCES Users(UserID) ON DELETE SET NULL
+    FOREIGN KEY (ContactID) REFERENCES Contacts(ContactID) ON DELETE CASCADE
 );
 
 -- Table for Sales
 CREATE TABLE Sales (
     SaleID SERIAL PRIMARY KEY,
-    TenantID INT NOT NULL, -- Foreign key for multi-tenancy
+    UserID INT NOT NULL, -- Foreign key to Users table, representing the owner of the sale
     ContactID INT NOT NULL, -- Foreign key to Contacts table
     SaleName VARCHAR(255) NOT NULL, -- Name of the sale, e.g., "Trip to Disney"
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CreatedBy INT, -- Foreign key to Users table, who created the sale
-    UpdatedBy INT, -- Foreign key to Users table, who last updated the sale
-    FOREIGN KEY (TenantID) REFERENCES Tenants(TenantID) ON DELETE CASCADE,
-    FOREIGN KEY (ContactID) REFERENCES Contacts(ContactID) ON DELETE CASCADE,
-    FOREIGN KEY (CreatedBy) REFERENCES Users(UserID) ON DELETE SET NULL,
-    FOREIGN KEY (UpdatedBy) REFERENCES Users(UserID) ON DELETE SET NULL
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (ContactID) REFERENCES Contacts(ContactID) ON DELETE CASCADE
 );
 
 -- Table for SaleProducts
@@ -174,16 +175,28 @@ CREATE TABLE Payments (
 -- Table for CalendarEvents
 CREATE TABLE CalendarEvents (
     EventID SERIAL PRIMARY KEY, -- Unique identifier for each event
-    TenantID INT NOT NULL, -- Foreign key for multi-tenancy
+    UserID INT NOT NULL, -- Foreign key to Users table, representing the owner of the calendar event
     EventType VARCHAR(50) NOT NULL, -- Type of event (e.g., Trip, Payment, Reminder)
     Title VARCHAR(255) NOT NULL, -- Title of the event
     Description TEXT, -- Optional details about the event
     StartDateTime TIMESTAMP NOT NULL, -- Start date and time of the event
     EndDateTime TIMESTAMP, -- End date and time of the event (if applicable)
     IsCustom BOOLEAN DEFAULT FALSE, -- Identifies user-created vs. system-generated events
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Event creation timestamp
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Event last updated timestamp
-    CreatedBy INT, -- Foreign key to Users table, who created the event
-    FOREIGN KEY (TenantID) REFERENCES Tenants(TenantID) ON DELETE CASCADE,
-    FOREIGN KEY (CreatedBy) REFERENCES Users(UserID) ON DELETE SET NULL
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
+
+-- Table for Notifications
+CREATE TABLE Notifications (
+    NotificationID SERIAL PRIMARY KEY,
+    UserID INT NOT NULL, -- Foreign key to Users table
+    Message TEXT NOT NULL, -- Notification message
+    Type VARCHAR(50) NOT NULL, -- Type of notification (e.g., Reminder, Alert)
+    EntityID INT, -- Optional: ID of the related entity (e.g., SaleID, ContactID)
+    EntityType VARCHAR(50), -- Optional: Type of the related entity (e.g., Sale, Contact)
+    IsRead BOOLEAN DEFAULT FALSE, -- Whether the notification has been read
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp of the notification
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+

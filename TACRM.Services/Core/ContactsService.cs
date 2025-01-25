@@ -23,12 +23,20 @@ namespace TACRM.Services.Core
 
 		public async Task<IEnumerable<Contact>> GetAllContactsAsync()
 		{
-			return await _dbContext.Contacts.ToListAsync();
+			return await _dbContext.Contacts
+				.Include(c => c.User)
+				.Include(c => c.ContactSource)
+				.Include(c => c.Status)
+				.ToListAsync();
 		}
 
 		public async Task<Contact> GetContactByIdAsync(int id)
 		{
-			return await _dbContext.Contacts.FindAsync(id);
+			return await _dbContext.Contacts
+				.Include(c => c.User)
+				.Include(c => c.ContactSource)
+				.Include(c => c.Status)
+				.FirstOrDefaultAsync(c => c.ContactID == id);
 		}
 
 		public async Task<Contact> CreateContactAsync(Contact contact)
@@ -41,10 +49,7 @@ namespace TACRM.Services.Core
 		public async Task<Contact> UpdateContactAsync(Contact contact)
 		{
 			var existingContact = await _dbContext.Contacts.FindAsync(contact.ContactID);
-			if (existingContact == null)
-			{
-				return null;
-			}
+			if (existingContact == null) throw new KeyNotFoundException("Contact not found");
 
 			_dbContext.Entry(existingContact).CurrentValues.SetValues(contact);
 			await _dbContext.SaveChangesAsync();
@@ -54,10 +59,7 @@ namespace TACRM.Services.Core
 		public async Task<bool> DeleteContactAsync(int id)
 		{
 			var contact = await _dbContext.Contacts.FindAsync(id);
-			if (contact == null)
-			{
-				return false;
-			}
+			if (contact == null) return false;
 
 			_dbContext.Contacts.Remove(contact);
 			await _dbContext.SaveChangesAsync();

@@ -16,6 +16,8 @@ builder.Services.AddScoped<ICalendarEventsService, CalendarEventsService>();
 builder.Services.AddScoped<IPaymentsService, PaymentsService>();
 builder.Services.AddScoped<IBudgetsService, BudgetsService>();
 builder.Services.AddScoped<IProvidersService, ProvidersService>();
+builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<ISubscriptionsService, SubscriptionsService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
