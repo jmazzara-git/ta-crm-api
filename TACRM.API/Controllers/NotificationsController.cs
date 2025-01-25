@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TACRM.Services.Core;
 using TACRM.Services.Entities;
 
 namespace TACRM.API.Controllers

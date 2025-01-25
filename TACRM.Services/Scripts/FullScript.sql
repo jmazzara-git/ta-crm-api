@@ -23,14 +23,19 @@ CREATE TABLE Agencies (
 -- Table for Users
 CREATE TABLE Users (
     UserID SERIAL PRIMARY KEY,
-    AgencyID INT, -- Foreign key to Agencies table, can be NULL for independent users
+    AgencyID INT, -- Foreign key to Agencies table
     Email VARCHAR(255) NOT NULL UNIQUE, -- Email registered in the 3rd party identity manager
     FullName VARCHAR(255),
-    UserType VARCHAR(50) NOT NULL, -- Type of user: Agent, Agency Owner, Admin
+    UserType VARCHAR(50) NOT NULL DEFAULT 'AGENT', -- UserType: AGENT (default), AGENCY, or ADMIN
+    DefaultBudgetMessage TEXT, -- Default message to be included in budgets
+    DefaultWelcomeMessage TEXT, -- Default message for public contact form
+    DefaultThanksMessage TEXT, -- Default thank-you message for public pages
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (AgencyID) REFERENCES Agencies(AgencyID) ON DELETE SET NULL
 );
+
+
 
 -- Table for Subscriptions
 CREATE TABLE Subscriptions (
@@ -47,7 +52,7 @@ CREATE TABLE Subscriptions (
 -- Table for Contacts
 CREATE TABLE Contacts (
     ContactID SERIAL PRIMARY KEY,
-    UserID INT NOT NULL, -- Foreign key to Users table, representing the owner of the contact
+    UserID INT NOT NULL, -- Foreign key to Users table
     ContactSourceID INT, -- Foreign key to ContactSources table
     StatusID INT, -- Foreign key to ContactStatuses table
     Name VARCHAR(255) NOT NULL,
@@ -58,13 +63,16 @@ CREATE TABLE Contacts (
     Adults INT DEFAULT 0, -- Number of adults in the party
     Kids INT DEFAULT 0, -- Number of kids in the party
     KidsAges TEXT, -- JSON or comma-separated list of ages
-    Comments TEXT, -- Additional free-text information about the contact
+    Comments TEXT, -- Free-text additional information about the contact
+    EnableWhatsAppNotifications BOOLEAN DEFAULT FALSE, -- Flag for WhatsApp notifications
+    EnableEmailNotifications BOOLEAN DEFAULT FALSE, -- Flag for email notifications
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
     FOREIGN KEY (ContactSourceID) REFERENCES ContactSources(ContactSourceID) ON DELETE SET NULL,
     FOREIGN KEY (StatusID) REFERENCES ContactStatuses(StatusID) ON DELETE SET NULL
 );
+
 
 -- Table for ContactSources
 CREATE TABLE ContactSources (
@@ -75,14 +83,58 @@ CREATE TABLE ContactSources (
 -- Table for ContactStatuses
 CREATE TABLE ContactStatuses (
     StatusID SERIAL PRIMARY KEY,
-    StatusName VARCHAR(50) NOT NULL -- e.g., New, In Progress, Converted, Lost
+    Key VARCHAR(50) NOT NULL UNIQUE -- Internal identifier for status
+);
+
+CREATE TABLE ContactStatusTranslations (
+    TranslationID SERIAL PRIMARY KEY,
+    StatusID INT NOT NULL, -- Foreign key to ContactStatuses
+    LanguageCode VARCHAR(5) NOT NULL, -- e.g., 'en', 'es'
+    DisplayName VARCHAR(255) NOT NULL, -- Translated name
+    FOREIGN KEY (StatusID) REFERENCES ContactStatuses(StatusID) ON DELETE CASCADE
+);
+
+INSERT INTO ContactStatuses (Key) VALUES ('New'), ('InProgress'), ('Converted'), ('Future'), ('Lost');
+
+INSERT INTO ContactStatusTranslations (StatusID, LanguageCode, DisplayName)
+VALUES
+(1, 'en', 'New'),
+(1, 'es', 'Nuevo'),
+(2, 'en', 'In Progress'),
+(2, 'es', 'En Progreso'),
+(3, 'en', 'Converted'),
+(3, 'es', 'Convertido'),
+(4, 'en', 'Future'),
+(4, 'es', 'Futuro'),
+(5, 'en', 'Lost'),
+(6, 'es', 'Perdido');
+
+
+-- Table for ContactProductInterest
+CREATE TABLE ContactProductInterest (
+    ContactProductInterestID SERIAL PRIMARY KEY,
+    ContactID INT NOT NULL, -- Foreign key to Contacts table
+    ProductID INT NOT NULL, -- Foreign key to Products table
+    FOREIGN KEY (ContactID) REFERENCES Contacts(ContactID) ON DELETE CASCADE,
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
 );
 
 -- Table for Products
 CREATE TABLE Products (
     ProductID SERIAL PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL
+    Name VARCHAR(255) NOT NULL,
+    ProductType VARCHAR(50) NOT NULL -- Types: Package, Hotel, Tickets, Car Rental, Insurance
 );
+
+-- Table for UserProducts
+CREATE TABLE UserProducts (
+    UserProductID SERIAL PRIMARY KEY,
+    UserID INT NOT NULL, -- Foreign key to Users table
+    ProductID INT NOT NULL, -- Foreign key to Products table
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
+);
+
 
 -- Table for Providers
 CREATE TABLE Providers (
@@ -91,14 +143,6 @@ CREATE TABLE Providers (
     ContactInfo TEXT -- Additional information about the provider (e.g., phone, email)
 );
 
--- Table for ContactProductInterest
-CREATE TABLE ContactProductInterest (
-    ContactProductInterestID SERIAL PRIMARY KEY,
-    ContactID INT NOT NULL,
-    ProductID INT NOT NULL,
-    FOREIGN KEY (ContactID) REFERENCES Contacts(ContactID) ON DELETE CASCADE,
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
-);
 
 -- Table for Budgets
 CREATE TABLE Budgets (
@@ -111,14 +155,37 @@ CREATE TABLE Budgets (
     TotalPrice DECIMAL(10, 2) NOT NULL DEFAULT 0.00, -- Total price of all products in the budget
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ContactID) REFERENCES Contacts(ContactID) ON DELETE CASCADE
+    FOREIGN KEY (ContactID) REFERENCES Contacts(ContactID) ON DELETE CASCADE,
+    CONSTRAINT uq_contact_budgetname UNIQUE (ContactID, BudgetName), -- Unique budget names per contact
+    CONSTRAINT chk_budget_currency CHECK (Currency IN ('USD', 'EUR', 'ARS')) -- Valid currencies
 );
+
+-- Table for BudgetProducts
+CREATE TABLE BudgetProducts (
+    BudgetProductID SERIAL PRIMARY KEY,
+    BudgetID INT NOT NULL, -- Foreign key to Budgets table
+    ProductID INT NOT NULL, -- Foreign key to Products table
+    ProductDetails TEXT, -- Free-text details about the product in the budget
+    Currency VARCHAR(10) NOT NULL DEFAULT 'USD', -- Currency of the product price
+    BasePrice DECIMAL(10, 2) NOT NULL, -- Base price before taxes
+    FinalPrice DECIMAL(10, 2) NOT NULL, -- Final price of the product after taxes
+    ProviderID INT, -- Foreign key to Providers table, optional field
+    BudgetDate DATE NOT NULL DEFAULT CURRENT_DATE, -- Date when the budget was made
+    CheckinDate DATE, -- Check-in date for the product
+    CheckoutDate DATE, -- Check-out date for the product
+    FOREIGN KEY (BudgetID) REFERENCES Budgets(BudgetID) ON DELETE CASCADE,
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE,
+    FOREIGN KEY (ProviderID) REFERENCES Providers(ProviderID) ON DELETE SET NULL,
+    CONSTRAINT chk_budgetproduct_currency CHECK (Currency IN ('USD', 'EUR', 'ARS')) -- Valid currencies
+);
+
 
 -- Table for Sales
 CREATE TABLE Sales (
     SaleID SERIAL PRIMARY KEY,
     UserID INT NOT NULL, -- Foreign key to Users table, representing the owner of the sale
     ContactID INT NOT NULL, -- Foreign key to Contacts table
+    SaleGUID UUID DEFAULT gen_random_uuid(), -- Public GUID for customer access
     SaleName VARCHAR(255) NOT NULL, -- Name of the sale, e.g., "Trip to Disney"
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

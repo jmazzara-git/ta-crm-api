@@ -14,6 +14,7 @@ namespace TACRM.Services
 		public DbSet<Contact> Contacts { get; set; }
 		public DbSet<ContactSource> ContactSources { get; set; }
 		public DbSet<ContactStatus> ContactStatuses { get; set; }
+		public DbSet<ContactStatusTranslation> ContactStatusTranslations { get; set; }
 		public DbSet<Product> Products { get; set; }
 		public DbSet<Provider> Providers { get; set; }
 		public DbSet<ContactProductInterest> ContactProductInterests { get; set; }
@@ -58,7 +59,8 @@ namespace TACRM.Services
 			modelBuilder.Entity<Contact>()
 				.HasOne(c => c.User)
 				.WithMany(u => u.Contacts)
-				.HasForeignKey(c => c.UserID);
+				.HasForeignKey(c => c.UserID)
+				.OnDelete(DeleteBehavior.Cascade);
 
 			modelBuilder.Entity<Contact>()
 				.HasOne(c => c.ContactSource)
@@ -72,17 +74,11 @@ namespace TACRM.Services
 				.HasForeignKey(c => c.StatusID)
 				.OnDelete(DeleteBehavior.SetNull);
 
-			// ContactSources
-			modelBuilder.Entity<ContactSource>().HasKey(cs => cs.ContactSourceID);
-
-			// ContactStatuses
-			modelBuilder.Entity<ContactStatus>().HasKey(cs => cs.StatusID);
-
-			// Products
-			modelBuilder.Entity<Product>().HasKey(p => p.ProductID);
-
-			// Providers
-			modelBuilder.Entity<Provider>().HasKey(p => p.ProviderID);
+			modelBuilder.Entity<Contact>()
+				.HasMany(c => c.ProductInterests)
+				.WithOne(pi => pi.Contact)
+				.HasForeignKey(pi => pi.ContactID)
+				.OnDelete(DeleteBehavior.Cascade);
 
 			// ContactProductInterest
 			modelBuilder.Entity<ContactProductInterest>()
@@ -90,13 +86,34 @@ namespace TACRM.Services
 
 			modelBuilder.Entity<ContactProductInterest>()
 				.HasOne(cpi => cpi.Contact)
-				.WithMany()
+				.WithMany(c => c.ProductInterests)
 				.HasForeignKey(cpi => cpi.ContactID);
 
 			modelBuilder.Entity<ContactProductInterest>()
 				.HasOne(cpi => cpi.Product)
 				.WithMany()
 				.HasForeignKey(cpi => cpi.ProductID);
+
+			// ContactSources
+			modelBuilder.Entity<ContactSource>().HasKey(cs => cs.ContactSourceID);
+
+			// ContactStatuses
+			modelBuilder.Entity<ContactStatus>()
+				.HasKey(cs => cs.StatusID);
+
+			modelBuilder.Entity<ContactStatusTranslation>()
+				.HasKey(cst => cst.TranslationID);
+
+			modelBuilder.Entity<ContactStatusTranslation>()
+				.HasOne(cst => cst.ContactStatus)
+				.WithMany(cs => cs.Translations)
+				.HasForeignKey(cst => cst.StatusID);
+
+			// Products
+			modelBuilder.Entity<Product>().HasKey(p => p.ProductID);
+
+			// Providers
+			modelBuilder.Entity<Provider>().HasKey(p => p.ProviderID);
 
 			// Budgets
 			modelBuilder.Entity<Budget>().HasKey(b => b.BudgetID);

@@ -19,11 +19,21 @@ builder.Services.AddScoped<IProvidersService, ProvidersService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<ISubscriptionsService, SubscriptionsService>();
 
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+var supportedCultures = new[] { "en", "es" };
+var localizationOptions = new RequestLocalizationOptions()
+	.SetDefaultCulture("en")
+	.AddSupportedCultures(supportedCultures)
+	.AddSupportedUICultures(supportedCultures);
+
+app.UseRequestLocalization(localizationOptions);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

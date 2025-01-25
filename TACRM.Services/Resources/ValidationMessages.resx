@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="RequiredEmail" xml:space="preserve">
+    <value>Email is required.</value>
+  </data>
+  <data name="InvalidDates" xml:space="preserve">
+    <value>TravelDateEnd must be after TravelDateStart.</value>
+  </data>
+  <data name="WhatsAppValidation" xml:space="preserve">
+    <value>WhatsApp notifications can only be enabled if a phone number is provided.</value>
+  </data>
+  <data name="EmailValidation" xml:space="preserve">
+    <value>Email notifications can only be enabled if an email address is provided.</value>
+  </data>
+  <data name="DuplicateContact" xml:space="preserve">
+    <value>A contact with this email already exists for the user.</value>
+  </data>
+  <data name="ContactCreatedSuccessfully" xml:space="preserve">
+    <value>Contact has been created successfully.</value>
+  </data>
+</root>

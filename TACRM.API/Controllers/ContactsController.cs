@@ -11,7 +11,6 @@ namespace TACRM.API.Controllers
 		private readonly IContactsService _contactsService = contactService;
 		private readonly ILogger<ContactsController> _logger = logger;
 
-		// GET: api/contacts
 		[HttpGet]
 		public async Task<IActionResult> GetAllContacts()
 		{
@@ -19,59 +18,71 @@ namespace TACRM.API.Controllers
 			return Ok(contacts);
 		}
 
-		// GET: api/contacts/{id}
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetContactById(int id)
 		{
 			var contact = await _contactsService.GetContactByIdAsync(id);
 			if (contact == null)
-			{
 				return NotFound();
-			}
+
 			return Ok(contact);
 		}
 
-		// POST: api/contacts
 		[HttpPost]
-		public async Task<IActionResult> CreateContact([FromBody] Contact contact)
+		public async Task<IActionResult> CreateContact(Contact contact)
 		{
-			if (!ModelState.IsValid)
+			try
 			{
-				return BadRequest(ModelState);
+				var createdContact = await _contactsService.CreateContactAsync(contact);
+				return CreatedAtAction(nameof(GetContactById), new { id = createdContact.ContactID }, createdContact);
 			}
-
-			var createdContact = await _contactsService.CreateContactAsync(contact);
-			return CreatedAtAction(nameof(GetContactById), new { id = createdContact.ContactID }, createdContact);
+			catch (InvalidOperationException ex)
+			{
+				return BadRequest(ex.Message);
+			}
 		}
 
-		// PUT: api/contacts/{id}
 		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateContact(int id, [FromBody] Contact contact)
+		public async Task<IActionResult> UpdateContact(int id, Contact contact)
 		{
-			if (id != contact.ContactID || !ModelState.IsValid)
-			{
-				return BadRequest();
-			}
+			if (id != contact.ContactID)
+				return BadRequest("Contact ID mismatch.");
 
-			var updatedContact = await _contactsService.UpdateContactAsync(contact);
-			if (updatedContact == null)
+			try
 			{
-				return NotFound();
-			}
+				var updatedContact = await _contactsService.UpdateContactAsync(contact);
+				if (updatedContact == null)
+					return NotFound();
 
-			return Ok(updatedContact);
+				return Ok(updatedContact);
+			}
+			catch (InvalidOperationException ex)
+			{
+				return BadRequest(ex.Message);
+			}
 		}
 
-		// DELETE: api/contacts/{id}
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteContact(int id)
 		{
-			var deleted = await _contactsService.DeleteContactAsync(id);
-			if (!deleted)
-			{
+			var result = await _contactsService.DeleteContactAsync(id);
+			if (!result)
 				return NotFound();
-			}
 
+			return NoContent();
+		}
+
+		[HttpPost("{contactId}/products/{productId}")]
+		public async Task<IActionResult> AddProductInterest(int contactId, int productId)
+		{
+			await _contactsService.AddProductInterestAsync(contactId, productId);
+			return NoContent();
+		}
+
+		[HttpDelete("products/{id}")]
+		public async Task<IActionResult> RemoveProductInterest(int id)
+		{
+			await _contactsService.RemoveProductInterestAsync(id);
 			return NoContent();
 		}
 	}
