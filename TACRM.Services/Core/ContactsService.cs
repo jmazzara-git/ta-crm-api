@@ -13,6 +13,8 @@ namespace TACRM.Services.Core
 		Task<Contact> UpdateContactAsync(Contact contact);
 		Task<bool> DeleteContactAsync(int id);
 		Task<IEnumerable<ContactStatusTranslation>> GetContactStatusesAsync(string languageCode);
+		Task AddProductInterestAsync(int contactId, int productId);
+		Task RemoveProductInterestAsync(int contactProductInterestId);
 	}
 
 	public class ContactsService(TACRMDbContext dbContext, IStringLocalizer<ValidationMessages> localizer) : IContactsService
@@ -98,6 +100,38 @@ namespace TACRM.Services.Core
 			return await _dbContext.ContactStatusTranslations
 				.Where(cst => cst.LanguageCode == languageCode)
 				.ToListAsync();
+		}
+
+		public async Task AddProductInterestAsync(int contactId, int productId)
+		{
+			// Ensure the contact exists
+			var contactExists = await _dbContext.Contacts.AnyAsync(c => c.ContactID == contactId);
+			if (!contactExists)
+				throw new InvalidOperationException(_localizer["ContactNotFound"]);
+
+			// Ensure the product exists
+			var productExists = await _dbContext.Products.AnyAsync(p => p.ProductID == productId);
+			if (!productExists)
+				throw new InvalidOperationException(_localizer["ProductNotFound"]);
+
+			var newInterest = new ContactProductInterest
+			{
+				ContactID = contactId,
+				ProductID = productId
+			};
+
+			_dbContext.ContactProductInterests.Add(newInterest);
+			await _dbContext.SaveChangesAsync();
+		}
+
+		public async Task RemoveProductInterestAsync(int contactProductInterestId)
+		{
+			var interest = await _dbContext.ContactProductInterests.FindAsync(contactProductInterestId);
+			if (interest == null)
+				throw new InvalidOperationException(_localizer["ProductInterestNotFound"]);
+
+			_dbContext.ContactProductInterests.Remove(interest);
+			await _dbContext.SaveChangesAsync();
 		}
 	}
 }

@@ -18,9 +18,10 @@ builder.Services.AddScoped<IBudgetsService, BudgetsService>();
 builder.Services.AddScoped<IProvidersService, ProvidersService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<ISubscriptionsService, SubscriptionsService>();
+builder.Services.AddScoped<IUserContext, UserContext>();
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
