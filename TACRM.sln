@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TACRM.API", "TACRM.API\TACRM.API.csproj", "{8F26FA15-C557-4369-BA64-95FA093E80FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TACRM.Services", "TACRM.Services\TACRM.Services.csproj", "{27E2223B-E8EE-49A0-947E-0033552C6A3E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8F26FA15-C557-4369-BA64-95FA093E80FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F26FA15-C557-4369-BA64-95FA093E80FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F26FA15-C557-4369-BA64-95FA093E80FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F26FA15-C557-4369-BA64-95FA093E80FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27E2223B-E8EE-49A0-947E-0033552C6A3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27E2223B-E8EE-49A0-947E-0033552C6A3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27E2223B-E8EE-49A0-947E-0033552C6A3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27E2223B-E8EE-49A0-947E-0033552C6A3E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
