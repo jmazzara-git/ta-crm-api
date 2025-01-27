@@ -1,148 +1,190 @@
--- CRM Db Model
-
--- Create schema for the project
-CREATE SCHEMA ta_crm;
-
--- Create database user
-CREATE USER ta_crm_user WITH PASSWORD 'SecureP@ss123';
-GRANT CONNECT ON DATABASE ta_crm TO ta_crm_user;
-GRANT USAGE ON SCHEMA ta_crm TO ta_crm_user;
-GRANT ALL PRIVILEGES ON SCHEMA ta_crm TO ta_crm_user;
-
--- Set default schema for this script
-SET search_path TO ta_crm;
 
 -- Table for Agencies
-CREATE TABLE Agencies (
-    AgencyID SERIAL PRIMARY KEY,
-    AgencyName VARCHAR(255) NOT NULL,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE "Agencies" (
+    "AgencyID" SERIAL PRIMARY KEY,
+    "AgencyName" VARCHAR(255) NOT NULL,
+    "CreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "UpdatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Table for Users
-CREATE TABLE Users (
-    UserID SERIAL PRIMARY KEY,
-    AgencyID INT, -- Foreign key to Agencies table
-    Email VARCHAR(255) NOT NULL UNIQUE, -- Email registered in the 3rd party identity manager
-    FullName VARCHAR(255),
-    UserType VARCHAR(50) NOT NULL DEFAULT 'AGENT', -- UserType: AGENT (default), AGENCY, or ADMIN
-    DefaultBudgetMessage TEXT, -- Default message to be included in budgets
-    DefaultWelcomeMessage TEXT, -- Default message for public contact form
-    DefaultThanksMessage TEXT, -- Default thank-you message for public pages
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (AgencyID) REFERENCES Agencies(AgencyID) ON DELETE SET NULL
+CREATE TABLE "Users" (
+    "UserID" SERIAL PRIMARY KEY, -- Unique identifier for each user
+    "AgencyID" INT, -- Foreign key to Agencies table
+    "Email" VARCHAR(255) NOT NULL UNIQUE, -- Email address of the user
+    "FullName" VARCHAR(255), -- Full name of the user
+    "UserType" VARCHAR(50) NOT NULL DEFAULT 'AGENT', -- User type: AGENT (default), AGENCY, ADMIN
+    "DefaultBudgetMessage" TEXT, -- Default message to include in all budgets
+    "DefaultWelcomeMessage" TEXT, -- Default message displayed in the public form for new contacts
+    "DefaultThanksMessage" TEXT, -- Default thank-you message for the public page for a sale
+    "CreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the user was created
+    "UpdatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the user was last updated
+    FOREIGN KEY ("AgencyID") REFERENCES "Agencies"("AgencyID") ON DELETE SET NULL -- Reference to Agencies table
 );
-
 
 
 -- Table for Subscriptions
-CREATE TABLE Subscriptions (
-    SubscriptionID SERIAL PRIMARY KEY,
-    UserID INT NOT NULL, -- Foreign key to Users table
-    StartDate DATE NOT NULL, -- Subscription start date
-    EndDate DATE, -- Subscription end date, NULL if active
-    Status VARCHAR(50) NOT NULL, -- Subscription status: Active, Cancelled, Expired
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+CREATE TABLE "Subscriptions" (
+    "SubscriptionID" SERIAL PRIMARY KEY, -- Unique identifier for each subscription
+    "UserID" INT NOT NULL, -- Foreign key to Users table
+    "StartDate" TIMESTAMP NOT NULL, -- The start date of the subscription
+    "EndDate" TIMESTAMP NOT NULL, -- The end date of the subscription
+    "Status" VARCHAR(50) NOT NULL DEFAULT 'Active', -- Subscription status: Active, Canceled, or Expired
+    "CreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the subscription was created
+    "UpdatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the subscription was last updated
+    FOREIGN KEY ("UserID") REFERENCES "Users"("UserID") ON DELETE CASCADE -- Reference to Users table
 );
 
--- Table for Contacts
-CREATE TABLE Contacts (
-    ContactID SERIAL PRIMARY KEY,
-    UserID INT NOT NULL, -- Foreign key to Users table
-    ContactSourceID INT, -- Foreign key to ContactSources table
-    StatusID INT, -- Foreign key to ContactStatuses table
-    Name VARCHAR(255) NOT NULL,
-    Email VARCHAR(255),
-    Phone VARCHAR(50),
-    TravelDateStart DATE,
-    TravelDateEnd DATE,
-    Adults INT DEFAULT 0, -- Number of adults in the party
-    Kids INT DEFAULT 0, -- Number of kids in the party
-    KidsAges TEXT, -- JSON or comma-separated list of ages
-    Comments TEXT, -- Free-text additional information about the contact
-    EnableWhatsAppNotifications BOOLEAN DEFAULT FALSE, -- Flag for WhatsApp notifications
-    EnableEmailNotifications BOOLEAN DEFAULT FALSE, -- Flag for email notifications
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
-    FOREIGN KEY (ContactSourceID) REFERENCES ContactSources(ContactSourceID) ON DELETE SET NULL,
-    FOREIGN KEY (StatusID) REFERENCES ContactStatuses(StatusID) ON DELETE SET NULL
+--
+--
+
+-- Table for Product Types
+CREATE TABLE "ProductType" (
+    "ProductTypeID" SERIAL PRIMARY KEY, -- Unique identifier for each product type
+    "ProductTypeKey" VARCHAR(50) NOT NULL UNIQUE -- Key identifier for the product type (e.g., Package, Hotel)
+);
+
+INSERT INTO "ProductType" ("ProductTypeKey") VALUES
+('Package'),
+('Hotel'),
+('Ticket'),
+('Attraction'),
+('Car'),
+('Insurance');
+
+-- Table for Product Types localization
+CREATE TABLE "ProductTypeTranslations" (
+    "TranslationID" SERIAL PRIMARY KEY, -- Unique identifier for each translation
+    "ProductTypeID" INT NOT NULL, -- Foreign key to ProductType table
+    "LanguageCode" VARCHAR(5) NOT NULL, -- Language code (e.g., 'en', 'es')
+    "DisplayName" VARCHAR(255) NOT NULL, -- Localized name of the product type
+    FOREIGN KEY ("ProductTypeID") REFERENCES "ProductType"("ProductTypeID") ON DELETE CASCADE -- Reference to ProductType table
+);
+
+INSERT INTO "ProductTypeTranslations" ("ProductTypeID", "LanguageCode", "DisplayName") VALUES
+(1, 'en', 'Package'),
+(1, 'es', 'Paquete'),
+(2, 'en', 'Hotel'),
+(2, 'es', 'Hotel'),
+(3, 'en', 'Ticket'),
+(3, 'es', 'Boleto'),
+(4, 'en', 'Attraction'),
+(4, 'es', 'Atracción'),
+(5, 'en', 'Car'),
+(5, 'es', 'Coche'),
+(6, 'en', 'Insurance'),
+(6, 'es', 'Seguro');
+
+
+-- Table for Products
+CREATE TABLE "Products" (
+    "ProductID" SERIAL PRIMARY KEY, -- Unique identifier for each product
+    "UserID" INT, -- Foreign key to Users table (nullable for shared products)
+    "ProductTypeID" INT NOT NULL, -- Foreign key to ProductType table
+    "ProductName" VARCHAR(255) NOT NULL, -- Name of the product
+    "CreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the product was created
+    "UpdatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the product was last updated
+    FOREIGN KEY ("ProductTypeID") REFERENCES "ProductType"("ProductTypeID") ON DELETE CASCADE, -- Reference to ProductType
+    FOREIGN KEY ("UserID") REFERENCES "Users"("UserID") ON DELETE SET NULL -- Reference to Users table
+);
+
+-- Table for Providers
+CREATE TABLE "Providers" (
+    "ProviderID" SERIAL PRIMARY KEY, -- Unique identifier for each provider
+    "UserID" INT, -- Foreign key to Users table (nullable for shared providers)
+    "ProviderName" VARCHAR(255) NOT NULL, -- Name of the provider
+    "ContactInfo" TEXT, -- Additional contact information for the provider (e.g., phone, email)
+    "CreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the provider was created
+    "UpdatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the provider was last updated
+    FOREIGN KEY ("UserID") REFERENCES "Users"("UserID") ON DELETE SET NULL -- Reference to Users table
 );
 
 
--- Table for ContactSources
-CREATE TABLE ContactSources (
-    ContactSourceID SERIAL PRIMARY KEY,
-    SourceName VARCHAR(255) NOT NULL -- e.g., Instagram, WhatsApp, TikTok
+--
+--
+
+-- Table for Contacts Sources
+CREATE TABLE "ContactSource" (
+    "ContactSourceID" SERIAL PRIMARY KEY, -- Unique identifier for each contact source
+    "ContactSourceName" VARCHAR(255) NOT NULL -- Name of the contact source (e.g., Instagram, WhatsApp)
 );
 
--- Table for ContactStatuses
-CREATE TABLE ContactStatuses (
-    StatusID SERIAL PRIMARY KEY,
-    Key VARCHAR(50) NOT NULL UNIQUE -- Internal identifier for status
+INSERT INTO "ContactSource" ("ContactSourceName") VALUES 
+('WhatsApp'),
+('Instagram'),
+('Website'),
+('Other')
+
+-- Table for Contacts Statuses
+CREATE TABLE "ContactStatus" (
+    "ContactStatusID" SERIAL PRIMARY KEY, -- Unique identifier for each contact status
+    "ContactStatusKey" VARCHAR(50) NOT NULL UNIQUE -- Internal key for the status (e.g., New, InProgress, Converted)
 );
 
-CREATE TABLE ContactStatusTranslations (
-    TranslationID SERIAL PRIMARY KEY,
-    StatusID INT NOT NULL, -- Foreign key to ContactStatuses
-    LanguageCode VARCHAR(5) NOT NULL, -- e.g., 'en', 'es'
-    DisplayName VARCHAR(255) NOT NULL, -- Translated name
-    FOREIGN KEY (StatusID) REFERENCES ContactStatuses(StatusID) ON DELETE CASCADE
+INSERT INTO "ContactStatus" ("ContactStatusKey") VALUES 
+('New'), 
+('InProgress'), 
+('Converted'), 
+('Future'), 
+('Lost');
+
+-- Table for Contacts Statuses localization
+CREATE TABLE "ContactStatusTranslations" (
+    "TranslationID" SERIAL PRIMARY KEY, -- Unique identifier for each translation
+    "ContactStatusID" INT NOT NULL, -- Foreign key to ContactStatus table
+    "LanguageCode" VARCHAR(5) NOT NULL, -- Language code (e.g., 'en', 'es')
+    "DisplayName" VARCHAR(255) NOT NULL, -- Localized display name for the status
+    FOREIGN KEY ("ContactStatusID") REFERENCES "ContactStatus"("ContactStatusID") ON DELETE CASCADE
 );
 
-INSERT INTO ContactStatuses (Key) VALUES ('New'), ('InProgress'), ('Converted'), ('Future'), ('Lost');
-
-INSERT INTO ContactStatusTranslations (StatusID, LanguageCode, DisplayName)
-VALUES
+INSERT INTO "ContactStatusTranslations" ("ContactStatusID", "LanguageCode", "DisplayName") VALUES
 (1, 'en', 'New'),
 (1, 'es', 'Nuevo'),
 (2, 'en', 'In Progress'),
 (2, 'es', 'En Progreso'),
 (3, 'en', 'Converted'),
-(3, 'es', 'Convertido'),
+(3, 'es', 'Ganado'),
 (4, 'en', 'Future'),
 (4, 'es', 'Futuro'),
 (5, 'en', 'Lost'),
-(6, 'es', 'Perdido');
+(5, 'es', 'Perdido');
 
+-- Table for Contacts
+CREATE TABLE "Contacts" (
+    "ContactID" SERIAL PRIMARY KEY, -- Unique identifier for each contact
+    "UserID" INT NOT NULL, -- Foreign key to Users table
+    "ContactSourceID" INT, -- Foreign key to ContactSource table
+    "ContactStatusID" INT, -- Foreign key to ContactStatus table
+    "FullName" VARCHAR(255) NOT NULL, -- Full name of the contact
+    "Email" VARCHAR(255), -- Email address of the contact
+    "Phone" VARCHAR(50), -- Phone number of the contact
+    "TravelDateStart" DATE, -- Planned travel start date
+    "TravelDateEnd" DATE, -- Planned travel end date
+    "Adults" INT DEFAULT 0, -- Number of adults in the party
+    "Kids" INT DEFAULT 0, -- Number of kids in the party
+    "KidsAges" TEXT, -- Comma-separated list of ages for children
+    "Comments" TEXT, -- Additional free-text information about the contact
+    "EnableWhatsAppNotifications" BOOLEAN DEFAULT FALSE, -- Flag for WhatsApp notifications
+    "EnableEmailNotifications" BOOLEAN DEFAULT FALSE, -- Flag for email notifications
+    "CreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the contact was created
+    "UpdatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the contact was last updated
+    FOREIGN KEY ("UserID") REFERENCES "Users"("UserID") ON DELETE CASCADE,
+    FOREIGN KEY ("ContactSourceID") REFERENCES "ContactSource"("ContactSourceID") ON DELETE SET NULL,
+    FOREIGN KEY ("ContactStatusID") REFERENCES "ContactStatus"("ContactStatusID") ON DELETE SET NULL
+);
 
 -- Table for ContactProductInterest
-CREATE TABLE ContactProductInterest (
-    ContactProductInterestID SERIAL PRIMARY KEY,
-    ContactID INT NOT NULL, -- Foreign key to Contacts table
-    ProductID INT NOT NULL, -- Foreign key to Products table
-    FOREIGN KEY (ContactID) REFERENCES Contacts(ContactID) ON DELETE CASCADE,
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
-);
-
--- Table for Products
-CREATE TABLE Products (
-    ProductID SERIAL PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL,
-    ProductType VARCHAR(50) NOT NULL -- Types: Package, Hotel, Tickets, Car Rental, Insurance
-);
-
--- Table for UserProducts
-CREATE TABLE UserProducts (
-    UserProductID SERIAL PRIMARY KEY,
-    UserID INT NOT NULL, -- Foreign key to Users table
-    ProductID INT NOT NULL, -- Foreign key to Products table
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
+CREATE TABLE "ContactProductInterest" (
+    "ContactProductInterestID" SERIAL PRIMARY KEY, -- Unique identifier for each contact-product relationship
+    "ContactID" INT NOT NULL, -- Foreign key to Contacts table
+    "ProductID" INT NOT NULL, -- Foreign key to Products table
+    FOREIGN KEY ("ContactID") REFERENCES "Contacts"("ContactID") ON DELETE CASCADE,
+    FOREIGN KEY ("ProductID") REFERENCES "Products"("ProductID") ON DELETE CASCADE
 );
 
 
--- Table for Providers
-CREATE TABLE Providers (
-    ProviderID SERIAL PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL,
-    ContactInfo TEXT -- Additional information about the provider (e.g., phone, email)
-);
-
+--
+--
 
 -- Table for Budgets
 CREATE TABLE Budgets (
@@ -266,4 +308,3 @@ CREATE TABLE Notifications (
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp of the notification
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
-

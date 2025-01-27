@@ -1,0 +1,71 @@
+{
+  "info": {
+    "name": "TA-CRM Contacts API",
+    "description": "Postman collection for testing the Contacts module of the TA-CRM system.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Contacts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{token}}", "type": "text"}
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/contacts",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contacts"],
+          "query": [
+            {"key": "statusId", "value": "", "description": "Filter by status ID", "disabled": true},
+            {"key": "sourceId", "value": "", "description": "Filter by source ID", "disabled": true},
+            {"key": "search", "value": "", "description": "Search by name, email, or phone", "disabled": true},
+            {"key": "page", "value": "1", "description": "Page number for pagination", "disabled": false},
+            {"key": "pageSize", "value": "10", "description": "Number of results per page", "disabled": false}
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Contact by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{token}}", "type": "text"}
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/contacts/:id",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contacts", ":id"],
+          "variable": [{"key": "id", "value": "1", "description": "Contact ID"}]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Contact",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Authorization", "value": "Bearer {{token}}", "type": "text"},
+          {"key": "Content-Type", "value": "application/json", "type": "text"}
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/contacts",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "contacts"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"phone\": \"+123456789\",\n    \"statusId\": 1,\n    \"sourceId\": 1,\n    \"travelDateStart\": \"2024-01-01\",\n    \"travelDateEnd\": \"2024-01-10\",\n    \"adults\": 2,\n    \"kids\": 1,\n    \"kidsAges\": \"5\",\n    \"comments\": \"Looking for a family vacation package\",\n    \"enableWhatsAppNotifications\": true,\n    \"enableEmailNotifications\": true,\n    \"productInterests\": [1, 2]\n}"
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {"key": "baseUrl", "value": "https://example.com", "description": "Base URL of the API"},
+    {"key": "token", "value": "", "description": "JWT token for authorization"}
+  ]
+}
