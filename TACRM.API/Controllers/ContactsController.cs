@@ -75,14 +75,14 @@ namespace TACRM.API.Controllers
 		[HttpPost("{contactId}/products/{productId}")]
 		public async Task<IActionResult> AddProductInterest(int contactId, int productId)
 		{
-			await _contactsService.AddProductInterestAsync(contactId, productId);
+			//await _contactsService.AddProductInterestAsync(contactId, productId);
 			return NoContent();
 		}
 
 		[HttpDelete("products/{id}")]
 		public async Task<IActionResult> RemoveProductInterest(int id)
 		{
-			await _contactsService.RemoveProductInterestAsync(id);
+			//await _contactsService.RemoveProductInterestAsync(id);
 			return NoContent();
 		}
 	}

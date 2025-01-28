@@ -22,8 +22,8 @@
 		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
 		// Navigation Properties
-		public virtual Budget Budget { get; set; } = null!;
-		public virtual Product Product { get; set; } = null!;
-		public virtual Provider? Provider { get; set; }
+		public virtual Budget Budget { get; set; }
+		public virtual Product Product { get; set; }
+		public virtual Provider Provider { get; set; }
 	}
 }

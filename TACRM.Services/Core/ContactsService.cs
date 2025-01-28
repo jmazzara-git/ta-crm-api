@@ -5,7 +5,7 @@ using TACRM.Services.Resources;
 
 namespace TACRM.Services.Core
 {
-	public interface IContactService
+	public interface IContactsService
 	{
 		Task<IEnumerable<Contact>> GetAllContactsAsync();
 		Task<(IEnumerable<Contact>, int)> SearchContactsAsync(string search, int? statusId, int page, int pageSize);
@@ -19,7 +19,7 @@ namespace TACRM.Services.Core
 	public class ContactsService(
 		TACRMDbContext dbContext,
 		IStringLocalizer<ValidationMessages> localizer,
-		IUserContext userContext) : IContactService
+		IUserContext userContext) : IContactsService
 	{
 		private readonly TACRMDbContext _dbContext = dbContext;
 		private readonly IStringLocalizer<ValidationMessages> _localizer = localizer;
