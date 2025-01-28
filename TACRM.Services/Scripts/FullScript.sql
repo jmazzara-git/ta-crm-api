@@ -154,7 +154,7 @@ CREATE TABLE "Contacts" (
     "ContactID" SERIAL PRIMARY KEY, -- Unique identifier for each contact
     "UserID" INT NOT NULL, -- Foreign key to Users table
     "ContactSourceID" INT, -- Foreign key to ContactSource table
-    "ContactStatusID" INT, -- Foreign key to ContactStatus table
+    "ContactStatusID" INT NOT NULL, -- Foreign key to ContactStatus table
     "FullName" VARCHAR(255) NOT NULL, -- Full name of the contact
     "Email" VARCHAR(255), -- Email address of the contact
     "Phone" VARCHAR(50), -- Phone number of the contact
@@ -166,7 +166,7 @@ CREATE TABLE "Contacts" (
     "Comments" TEXT, -- Additional free-text information about the contact
     "EnableWhatsAppNotifications" BOOLEAN DEFAULT FALSE, -- Flag for WhatsApp notifications
     "EnableEmailNotifications" BOOLEAN DEFAULT FALSE, -- Flag for email notifications
-    "CreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the contact was created
+    "CreatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the contact was created
     "UpdatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the contact was last updated
     FOREIGN KEY ("UserID") REFERENCES "Users"("UserID") ON DELETE CASCADE,
     FOREIGN KEY ("ContactSourceID") REFERENCES "ContactSource"("ContactSourceID") ON DELETE SET NULL,

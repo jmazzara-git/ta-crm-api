@@ -54,11 +54,11 @@ namespace TACRM.Services
 
 			// Contacts
 			modelBuilder.Entity<Contact>()
-				.HasKey(c => c.ContactID);
+						  .HasKey(c => c.ContactID);
 
 			modelBuilder.Entity<Contact>()
 				.HasOne(c => c.User)
-				.WithMany(u => u.Contacts)
+				.WithMany()
 				.HasForeignKey(c => c.UserID)
 				.OnDelete(DeleteBehavior.Cascade);
 
@@ -69,9 +69,9 @@ namespace TACRM.Services
 				.OnDelete(DeleteBehavior.SetNull);
 
 			modelBuilder.Entity<Contact>()
-				.HasOne(c => c.Status)
+				.HasOne(c => c.ContactStatus)
 				.WithMany()
-				.HasForeignKey(c => c.StatusID)
+				.HasForeignKey(c => c.ContactStatusID)
 				.OnDelete(DeleteBehavior.SetNull);
 
 			modelBuilder.Entity<Contact>()
@@ -99,7 +99,7 @@ namespace TACRM.Services
 
 			// ContactStatuses
 			modelBuilder.Entity<ContactStatus>()
-				.HasKey(cs => cs.StatusID);
+				.HasKey(cs => cs.ContactStatusID);
 
 			modelBuilder.Entity<ContactStatusTranslation>()
 				.HasKey(cst => cst.TranslationID);
@@ -107,13 +107,48 @@ namespace TACRM.Services
 			modelBuilder.Entity<ContactStatusTranslation>()
 				.HasOne(cst => cst.ContactStatus)
 				.WithMany(cs => cs.Translations)
-				.HasForeignKey(cst => cst.StatusID);
+				.HasForeignKey(cst => cst.ContactStatusID)
+				.OnDelete(DeleteBehavior.Cascade);
+
+
+			// Product Types
+			modelBuilder.Entity<ProductType>()
+			   .HasKey(pt => pt.ProductTypeID);
+
+			modelBuilder.Entity<ProductTypeTranslation>()
+				.HasKey(ptt => ptt.TranslationID);
+
+			modelBuilder.Entity<ProductTypeTranslation>()
+				.HasOne(ptt => ptt.ProductType)
+				.WithMany(pt => pt.Translations)
+				.HasForeignKey(ptt => ptt.ProductTypeID)
+				.OnDelete(DeleteBehavior.Cascade);
 
 			// Products
-			modelBuilder.Entity<Product>().HasKey(p => p.ProductID);
+			modelBuilder.Entity<Product>()
+				.HasKey(p => p.ProductID);
+
+			modelBuilder.Entity<Product>()
+				.HasOne(p => p.ProductType)
+				.WithMany()
+				.HasForeignKey(p => p.ProductTypeID)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			modelBuilder.Entity<Product>()
+				.HasOne(p => p.User)
+				.WithMany()
+				.HasForeignKey(p => p.UserID)
+				.OnDelete(DeleteBehavior.SetNull);
 
 			// Providers
-			modelBuilder.Entity<Provider>().HasKey(p => p.ProviderID);
+			modelBuilder.Entity<Provider>()
+			   .HasKey(pr => pr.ProviderID);
+
+			modelBuilder.Entity<Provider>()
+				.HasOne(pr => pr.User)
+				.WithMany()
+				.HasForeignKey(pr => pr.UserID)
+				.OnDelete(DeleteBehavior.SetNull);
 
 			// Budgets
 			modelBuilder.Entity<Budget>().HasKey(b => b.BudgetID);

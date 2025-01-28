@@ -26,7 +26,7 @@ namespace TACRM.Services.Core
 		{
 			return await _dbContext.Contacts
 				.Include(c => c.ContactSource)
-				.Include(c => c.Status)
+				.Include(c => c.ContactStatus)
 				.Include(c => c.ProductInterests)
 				.ThenInclude(pi => pi.Product)
 				.ToListAsync();
@@ -36,7 +36,7 @@ namespace TACRM.Services.Core
 		{
 			return await _dbContext.Contacts
 				.Include(c => c.ContactSource)
-				.Include(c => c.Status)
+				.Include(c => c.ContactStatus)
 				.Include(c => c.ProductInterests)
 				.ThenInclude(pi => pi.Product)
 				.FirstOrDefaultAsync(c => c.ContactID == id);
