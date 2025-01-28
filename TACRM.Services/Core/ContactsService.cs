@@ -5,58 +5,84 @@ using TACRM.Services.Resources;
 
 namespace TACRM.Services.Core
 {
-	public interface IContactsService
+	public interface IContactService
 	{
 		Task<IEnumerable<Contact>> GetAllContactsAsync();
+		Task<(IEnumerable<Contact>, int)> SearchContactsAsync(string search, int? statusId, int page, int pageSize);
 		Task<Contact> GetContactByIdAsync(int id);
 		Task<Contact> CreateContactAsync(Contact contact);
 		Task<Contact> UpdateContactAsync(Contact contact);
 		Task<bool> DeleteContactAsync(int id);
 		Task<IEnumerable<ContactStatusTranslation>> GetContactStatusesAsync(string languageCode);
-		Task AddProductInterestAsync(int contactId, int productId);
-		Task RemoveProductInterestAsync(int contactProductInterestId);
 	}
 
-	public class ContactsService(TACRMDbContext dbContext, IStringLocalizer<ValidationMessages> localizer) : IContactsService
+	public class ContactsService(
+		TACRMDbContext dbContext,
+		IStringLocalizer<ValidationMessages> localizer,
+		IUserContext userContext) : IContactService
 	{
 		private readonly TACRMDbContext _dbContext = dbContext;
 		private readonly IStringLocalizer<ValidationMessages> _localizer = localizer;
+		private readonly IUserContext _userContext = userContext;
 
 		public async Task<IEnumerable<Contact>> GetAllContactsAsync()
 		{
+			var userId = _userContext.UserId;
 			return await _dbContext.Contacts
+				.Where(c => c.UserID == userId)
 				.Include(c => c.ContactSource)
 				.Include(c => c.ContactStatus)
-				.Include(c => c.ProductInterests)
-				.ThenInclude(pi => pi.Product)
 				.ToListAsync();
+		}
+
+		public async Task<(IEnumerable<Contact>, int)> SearchContactsAsync(string search, int? statusId, int page, int pageSize)
+		{
+			var userId = _userContext.UserId;
+
+			var query = _dbContext.Contacts
+				.Where(c => c.UserID == userId)
+				.Include(c => c.ContactSource)
+				.Include(c => c.ContactStatus)
+				.AsQueryable();
+
+			if (!string.IsNullOrWhiteSpace(search))
+			{
+				query = query.Where(c => c.FullName.Contains(search));
+			}
+
+			if (statusId.HasValue)
+			{
+				query = query.Where(c => c.ContactStatusID == statusId.Value);
+			}
+
+			var totalRecords = await query.CountAsync();
+
+			var contacts = await query
+				.OrderBy(c => c.FullName)
+				.Skip((page - 1) * pageSize)
+				.Take(pageSize)
+				.ToListAsync();
+
+			return (contacts, totalRecords);
 		}
 
 		public async Task<Contact> GetContactByIdAsync(int id)
 		{
-			return await _dbContext.Contacts
+			var userId = _userContext.UserId;
+
+			var contact = await _dbContext.Contacts
 				.Include(c => c.ContactSource)
 				.Include(c => c.ContactStatus)
-				.Include(c => c.ProductInterests)
-				.ThenInclude(pi => pi.Product)
-				.FirstOrDefaultAsync(c => c.ContactID == id);
+				.FirstOrDefaultAsync(c => c.ContactID == id && c.UserID == userId);
+
+			return contact;
 		}
 
 		public async Task<Contact> CreateContactAsync(Contact contact)
 		{
-			// Validation rules for WhatsApp and Email notifications
-			if (contact.EnableWhatsAppNotifications && string.IsNullOrWhiteSpace(contact.Phone))
-				throw new InvalidOperationException(_localizer["WhatsAppValidation"]);
+			contact.UserID = _userContext.UserId;
 
-			if (contact.EnableEmailNotifications && string.IsNullOrWhiteSpace(contact.Email))
-				throw new InvalidOperationException(_localizer["EmailValidation"]);
-
-			if (contact.TravelDateStart > contact.TravelDateEnd)
-				throw new InvalidOperationException(_localizer["InvalidDates"]);
-
-			// Check for duplicate email for the same user
-			if (await _dbContext.Contacts.AnyAsync(c => c.UserID == contact.UserID && c.Email == contact.Email))
-				throw new InvalidOperationException(_localizer["DuplicateContact"]);
+			ValidateContact(contact);
 
 			_dbContext.Contacts.Add(contact);
 			await _dbContext.SaveChangesAsync();
@@ -65,19 +91,15 @@ namespace TACRM.Services.Core
 
 		public async Task<Contact> UpdateContactAsync(Contact contact)
 		{
-			var existingContact = await _dbContext.Contacts.FindAsync(contact.ContactID);
+			var userId = _userContext.UserId;
+
+			var existingContact = await _dbContext.Contacts
+				.FirstOrDefaultAsync(c => c.ContactID == contact.ContactID && c.UserID == userId);
+
 			if (existingContact == null)
 				return null;
 
-			// Validation rules
-			if (contact.EnableWhatsAppNotifications && string.IsNullOrWhiteSpace(contact.Phone))
-				throw new InvalidOperationException(_localizer["WhatsAppValidation"]);
-
-			if (contact.EnableEmailNotifications && string.IsNullOrWhiteSpace(contact.Email))
-				throw new InvalidOperationException(_localizer["EmailValidation"]);
-
-			if (contact.TravelDateStart > contact.TravelDateEnd)
-				throw new InvalidOperationException(_localizer["InvalidDates"]);
+			ValidateContact(contact);
 
 			_dbContext.Entry(existingContact).CurrentValues.SetValues(contact);
 			await _dbContext.SaveChangesAsync();
@@ -86,7 +108,11 @@ namespace TACRM.Services.Core
 
 		public async Task<bool> DeleteContactAsync(int id)
 		{
-			var contact = await _dbContext.Contacts.FindAsync(id);
+			var userId = _userContext.UserId;
+
+			var contact = await _dbContext.Contacts
+				.FirstOrDefaultAsync(c => c.ContactID == id && c.UserID == userId);
+
 			if (contact == null)
 				return false;
 
@@ -102,36 +128,22 @@ namespace TACRM.Services.Core
 				.ToListAsync();
 		}
 
-		public async Task AddProductInterestAsync(int contactId, int productId)
+		private void ValidateContact(Contact contact)
 		{
-			// Ensure the contact exists
-			var contactExists = await _dbContext.Contacts.AnyAsync(c => c.ContactID == contactId);
-			if (!contactExists)
-				throw new InvalidOperationException(_localizer["ContactNotFound"]);
+			if (contact.EnableWhatsAppNotifications && string.IsNullOrWhiteSpace(contact.Phone))
+				throw new InvalidOperationException(_localizer["WhatsAppValidation"]);
 
-			// Ensure the product exists
-			var productExists = await _dbContext.Products.AnyAsync(p => p.ProductID == productId);
-			if (!productExists)
-				throw new InvalidOperationException(_localizer["ProductNotFound"]);
+			if (contact.EnableEmailNotifications && string.IsNullOrWhiteSpace(contact.Email))
+				throw new InvalidOperationException(_localizer["EmailValidation"]);
 
-			var newInterest = new ContactProductInterest
-			{
-				ContactID = contactId,
-				ProductID = productId
-			};
+			if (contact.TravelDateStart > contact.TravelDateEnd)
+				throw new InvalidOperationException(_localizer["InvalidDates"]);
 
-			_dbContext.ContactProductInterests.Add(newInterest);
-			await _dbContext.SaveChangesAsync();
-		}
+			if (contact.Kids > 0 && string.IsNullOrWhiteSpace(contact.KidsAges))
+				throw new InvalidOperationException(_localizer["KidsAgesRequired"]);
 
-		public async Task RemoveProductInterestAsync(int contactProductInterestId)
-		{
-			var interest = await _dbContext.ContactProductInterests.FindAsync(contactProductInterestId);
-			if (interest == null)
-				throw new InvalidOperationException(_localizer["ProductInterestNotFound"]);
-
-			_dbContext.ContactProductInterests.Remove(interest);
-			await _dbContext.SaveChangesAsync();
+			if (!string.IsNullOrWhiteSpace(contact.KidsAges) && contact.KidsAges.Split(',').Length != contact.Kids)
+				throw new InvalidOperationException(_localizer["KidsAgesMismatch"]);
 		}
 	}
 }

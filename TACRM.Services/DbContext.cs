@@ -19,6 +19,7 @@ namespace TACRM.Services
 		public DbSet<Provider> Providers { get; set; }
 		public DbSet<ContactProductInterest> ContactProductInterests { get; set; }
 		public DbSet<Budget> Budgets { get; set; }
+		public DbSet<BudgetProduct> BudgetProducts { get; set; }
 		public DbSet<Sale> Sales { get; set; }
 		public DbSet<SaleProduct> SaleProducts { get; set; }
 		public DbSet<SaleTraveler> SaleTravelers { get; set; }

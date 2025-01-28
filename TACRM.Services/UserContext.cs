@@ -6,6 +6,7 @@ namespace TACRM.Services
 
 	public interface IUserContext
 	{
+		int UserId { get; }
 		int GetUserId();
 		string GetUserType();
 		int? GetAgencyId();
@@ -14,6 +15,8 @@ namespace TACRM.Services
 	public class UserContext : IUserContext
 	{
 		private readonly ClaimsPrincipal _user;
+
+		public int UserId => 1;
 
 		public UserContext(IHttpContextAccessor httpContextAccessor)
 		{
