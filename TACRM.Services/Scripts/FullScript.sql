@@ -2,11 +2,14 @@
 CREATE TYPE contact_status AS ENUM ('New', 'InProgress', 'Converted', 'Future', 'Lost');
 CREATE TYPE subscription_status AS ENUM ('Active', 'Canceled', 'Expired');
 CREATE TYPE sale_product_status AS ENUM ('Active', 'Cancelled');
+CREATE TYPE user_type AS ENUM ('AGENT', 'AGENCY', 'ADMIN');
 
 -- Table for Agencies
 CREATE TABLE "Agencies" (
     "AgencyID" SERIAL PRIMARY KEY,
     "AgencyName" VARCHAR(255) NOT NULL,
+    "ContactEmail" VARCHAR(255),
+    "ContactPhone" VARCHAR(50),    
     "CreatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "UpdatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -17,7 +20,7 @@ CREATE TABLE "Users" (
     "AgencyID" INT,
     "Email" VARCHAR(255) NOT NULL UNIQUE,
     "FullName" VARCHAR(255),
-    "UserType" VARCHAR(50) NOT NULL DEFAULT 'AGENT',
+    "UserType" user_type NOT NULL DEFAULT 'AGENT', 
     "DefaultBudgetMessage" TEXT,
     "DefaultWelcomeMessage" TEXT,
     "DefaultThanksMessage" TEXT,
@@ -29,10 +32,11 @@ CREATE TABLE "Users" (
 -- Table for Subscriptions
 CREATE TABLE "Subscriptions" (
     "SubscriptionID" SERIAL PRIMARY KEY,
-    "UserID" INT NOT NULL,
+    "UserID" INT NOT NULL, -- Link to Users table
+    "PlanName" VARCHAR(50) NOT NULL, -- e.g., Basic, Premium
     "StartDate" TIMESTAMP NOT NULL,
     "EndDate" TIMESTAMP NOT NULL,
-    "Status" subscription_status NOT NULL DEFAULT 'Active',
+    "Status" subscription_status NOT NULL DEFAULT 'Active', -- Active, Canceled, Expired
     "CreatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "UpdatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("UserID") REFERENCES "Users"("UserID") ON DELETE CASCADE

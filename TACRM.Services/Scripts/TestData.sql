@@ -1,55 +1,94 @@
 -- Insert test data into Agencies table
-INSERT INTO "Agencies" ("AgencyName") VALUES 
-('Travel Experts Agency'),
-('Global Adventures Co.'),
-('Dream Vacations Inc.'),
-('Explore the World Ltd.'),
-('Sunshine Travels LLC');
+INSERT INTO "Agencies" ("AgencyName", "ContactEmail", "ContactPhone") VALUES 
+('Travel Experts Agency', 'info@travelexperts.com', '+1234567890'),
+('Global Adventures Co.', 'contact@globaladventures.com', '+1234567891');
 
 -- Insert test data into Users table
-INSERT INTO "Users" ("Email", "FullName", "UserType") VALUES
-('admin@admin.com', 'Admin User', 'ADMIN'),
-('agent@agent.com', 'Agent User', 'AGENT')
+INSERT INTO "Users" (
+    "AgencyID", "Email", "FullName", "UserType", "DefaultBudgetMessage", "DefaultWelcomeMessage", "DefaultThanksMessage"
+) VALUES
+(NULL, 'admin@admin.com', 'Admin User', 'ADMIN', 'Welcome!', 'Thank you for choosing us!', 'We appreciate your business!'), -- Super Admin
+(1, 'owner@travelexperts.com', 'Agency Owner', 'AGENCY', 'Welcome!', 'Thank you for choosing us!', 'We appreciate your business!'), -- Owner of Travel Experts Agency
+(1, 'agent1@travelexperts.com', 'Agent One', 'AGENT', 'Welcome!', 'Thank you for choosing us!', 'We appreciate your business!'), -- Agent belonging to Travel Experts Agency
+(2, 'owner@globaladventures.com', 'Agency Owner', 'AGENCY', 'Welcome!', 'Thank you for choosing us!', 'We appreciate your business!'), -- Owner of Global Adventures Co.
+(2, 'agent2@globaladventures.com', 'Agent Two', 'AGENT', 'Welcome!', 'Thank you for choosing us!', 'We appreciate your business!'), -- Agent belonging to Global Adventures Co.
+(NULL, 'independent@agent.com', 'Independent Agent', 'AGENT', 'Welcome!', 'Thank you for choosing us!', 'We appreciate your business!'); -- Independent Agent
 
+-- Insert test data into Subscriptions table
+INSERT INTO "Subscriptions" (
+    "UserID", "PlanName", "StartDate", "EndDate", "Status"
+) VALUES
+(2, 'Premium', '2023-01-01', '2024-01-01', 'Active'), -- Travel Experts Agency's subscription
+(3, 'Basic', '2023-01-01', '2024-01-01', 'Active'), -- Agent One's subscription
+(4, 'Premium', '2023-01-01', '2024-01-01', 'Active'), -- Global Adventures Co.'s subscription
+(5, 'Basic', '2023-01-01', '2024-01-01', 'Active'), -- Agent Two's subscription
+(6, 'Basic', '2023-01-01', '2024-01-01', 'Active'); -- Independent Agent's subscription
 
--- Products test data
+-- Insert test data into Products table
 INSERT INTO "Products" ("ProductTypeID", "ProductName", "CreatedAt", "UpdatedAt") VALUES
 (1, 'Package', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (2, 'Hotel', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(3, 'Ticket', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(4, 'Attraction', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(3, 'Tickets', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(4, 'Attractions', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (5, 'Car Rental', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (6, 'Travel Insurance', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
--- Providers test data
-INSERT INTO "Providers" ("ProviderName") VALUES
-('VOBE'),
-('DTA'),
-('VAX'),
-('EXPEDIA');
+-- Insert test data into Providers table
+INSERT INTO "Providers" ("ProviderName", "ContactInfo") VALUES
+('VOBE', 'support@vobe.com'),
+('DTA', 'info@dta.com'),
+('VAX', 'help@vax.com'),
+('EXPEDIA', 'contact@expedia.com');
 
--- Contacts test data
--- Insert 25 contacts into the Contacts table with "New" status
-
+-- Insert test data into Contacts table
 INSERT INTO "Contacts" (
     "UserID", "ContactSourceID", "ContactStatusID", "FullName", 
     "Email", "Phone", "TravelDateStart", "TravelDateEnd", 
     "Adults", "Kids", "KidsAges", "Comments", 
     "EnableWhatsAppNotifications", "EnableEmailNotifications", "CreatedAt", "UpdatedAt"
 ) VALUES
-(1, 1, 1, 'John Doe', 'john.doe1@example.com', '+1234567890', '2024-01-01', '2024-01-10', 2, 0, NULL, 'Looking for a family vacation.', FALSE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 1, 1, 'Jane Smith', 'jane.smith2@example.com', '+1234567891', '2024-01-15', '2024-01-20', 1, 1, '5', 'Wants a single parent trip.', TRUE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 2, 1, 'Alice Johnson', 'alice.johnson3@example.com', '+1234567892', '2024-02-01', '2024-02-07', 2, 2, '7,9', 'Family trip with kids.', FALSE, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 3, 1, 'Bob Brown', 'bob.brown4@example.com', '+1234567893', NULL, NULL, 0, 0, NULL, 'Exploring trip options.', FALSE, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 4, 1, 'Charlie Green', 'charlie.green5@example.com', '+1234567894', '2024-03-10', '2024-03-15', 2, 0, NULL, 'Business trip inquiry.', TRUE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 1, 1, 'Emily White', 'emily.white6@example.com', '+1234567895', '2024-04-01', '2024-04-05', 1, 1, '4', 'Solo parent trip.', FALSE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 2, 1, 'David Black', 'david.black7@example.com', '+1234567896', NULL, NULL, 2, 2, '6,8', 'Looking for group discounts.', FALSE, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 3, 1, 'Olivia King', 'olivia.king8@example.com', '+1234567897', '2024-05-01', '2024-05-10', 1, 1, '3', 'Interested in beach resorts.', TRUE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 4, 1, 'Mia Walker', 'mia.walker9@example.com', '+1234567898', '2024-06-01', '2024-06-05', 2, 0, NULL, 'Luxury accommodation request.', TRUE, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 1, 1, 'Lucas Martinez', 'lucas.martinez10@example.com', '+1234567899', '2024-07-01', '2024-07-15', 2, 2, '5,7', 'Vacation with extended family.', FALSE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(3, 1, 1, 'John Doe', 'john.doe1@example.com', '+1234567890', '2024-01-01', '2024-01-10', 2, 0, NULL, 'Looking for a family vacation.', FALSE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(5, 1, 1, 'Jane Smith', 'jane.smith2@example.com', '+1234567891', '2024-01-15', '2024-01-20', 1, 1, '5', 'Wants a single parent trip.', TRUE, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
--- Verify inserted data
-SELECT * FROM "Contacts";
+-- Insert test data into Budgets table
+INSERT INTO "Budgets" (
+    "ContactID", "BudgetName", "BudgetDetails", "Adults", "Kids", "KidsAges", "CreatedAt", "UpdatedAt"
+) VALUES
+(1, 'Family Vacation Budget', 'Includes flights and hotel.', 2, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 'Single Parent Trip Budget', 'Includes hotel and activities.', 1, 1, '5', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
+-- Insert test data into Sales table
+INSERT INTO "Sales" (
+    "UserID", "ContactID", "SaleName", "SaleDetails", "Adults", "Kids", "KidsAges", "CreatedAt", "UpdatedAt"
+) VALUES
+(3, 1, 'Family Vacation Sale', 'Confirmed booking for family vacation.', 2, 0, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(5, 2, 'Single Parent Trip Sale', 'Confirmed booking for single parent trip.', 1, 1, '5', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
+-- Insert test data into SaleProducts table
+INSERT INTO "SaleProducts" (
+    "SaleID", "ProductID", "ProviderID", "BookingID", "BookingDate", "CheckinDate", "CheckoutDate", 
+    "Currency", "BasePrice", "FinalPrice", "PaymentDueDate", "Commission", "Status", "CreatedAt", "UpdatedAt"
+) VALUES
+(1, 1, 1, 'SALE123', '2023-12-15', '2024-01-01', '2024-01-10', 'USD', 500.00, 550.00, '2023-12-20', 50.00, 'Active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 2, 2, 'SALE456', '2023-12-20', '2024-01-15', '2024-01-20', 'USD', 800.00, 880.00, '2023-12-25', 80.00, 'Active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
+-- Insert test data into Payments table
+INSERT INTO "Payments" (
+    "SaleProductID", "Currency", "PaymentAmount", "PaymentDate", "PaymentMethod"
+) VALUES
+(1, 'USD', 550.00, '2023-12-18', 'Credit Card'),
+(2, 'USD', 880.00, '2023-12-22', 'Bank Transfer');
+
+-- Insert test data into CalendarEvents table
+INSERT INTO "CalendarEvents" (
+    "UserID", "EventType", "Title", "Description", "StartDateTime", "EndDateTime", "IsCustom", "CreatedAt", "UpdatedAt"
+) VALUES
+(3, 'Trip', 'Family Vacation', 'Trip to the beach resort.', '2024-01-01 10:00:00', '2024-01-10 18:00:00', FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(5, 'Payment Reminder', 'Payment Due', 'Reminder for payment due on 2023-12-25.', '2023-12-24 09:00:00', '2023-12-24 10:00:00', FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Insert test data into Notifications table
+INSERT INTO "Notifications" (
+    "UserID", "NotificationType", "Message", "IsRead", "EventID", "CreatedAt", "UpdatedAt"
+) VALUES
+(3, 'Payment Reminder', 'Payment for booking BOOK123 is due soon.', FALSE, 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(5, 'Trip Reminder', 'Your trip to the beach resort starts tomorrow.', FALSE, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
