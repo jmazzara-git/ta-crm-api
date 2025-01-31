@@ -1,9 +1,9 @@
 
 namespace TACRM.Services.Entities
 {
-	public class ContactProductInterest
+	public class ContactProduct
 	{
-		public int ContactProductInterestID { get; set; }
+		public int ContactProductID { get; set; }
 		public int ContactID { get; set; } // Foreign key to Contacts
 		public int ProductID { get; set; } // Foreign key to Products
 

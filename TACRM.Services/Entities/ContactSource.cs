@@ -6,7 +6,7 @@ namespace TACRM.Services.Entities
 		public int ContactSourceID { get; set; }
 		public string ContactSourceName { get; set; }
 
-		// Navigation Properties
+		// Navigation properties
 		public ICollection<Contact> Contacts { get; set; }
 	}
 }

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
     <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="9.0.1" />
@@ -14,8 +15,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Resources\ValidationMessages.resx">
-      <Generator></Generator>
+    <EmbeddedResource Update="Resources\Messages.es.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <CustomToolNamespace>TACRM.Services.Resources</CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Messages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <CustomToolNamespace>TACRM.Services.Resources</CustomToolNamespace>
     </EmbeddedResource>
   </ItemGroup>
 

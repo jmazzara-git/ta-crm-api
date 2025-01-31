@@ -1,89 +1,137 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TACRM.Services.Core;
+﻿using FluentValidation;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Mvc;
+using TACRM.Services.Abstractions;
 using TACRM.Services.Entities;
 
 namespace TACRM.API.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class ContactsController(IContactsService contactService, ILogger<ContactsController> logger) : ControllerBase
+	public class ContactsController : ControllerBase
 	{
-		private readonly IContactsService _contactsService = contactService;
-		private readonly ILogger<ContactsController> _logger = logger;
+		private readonly IContactsService _contactsService;
 
-		[HttpGet]
-		public async Task<IActionResult> GetAllContacts()
+		public ContactsController(IContactsService contactsService)
 		{
-			var contacts = await _contactsService.GetAllContactsAsync();
+			_contactsService = contactsService;
+		}
+
+		// GET: api/contacts
+		[HttpGet]
+		public async Task<ActionResult<IEnumerable<Contact>>> GetContacts()
+		{
+			var contacts = await _contactsService.GetContactsAsync();
 			return Ok(contacts);
 		}
 
+		// GET: api/contacts/search
+		[HttpGet("search")]
+		public async Task<IActionResult> SearchContacts(
+			[FromQuery] string searchTerm = null,
+			[FromQuery] int? contactStatusId = null,
+			[FromQuery] int pageNumber = 1,
+			[FromQuery] int pageSize = 10)
+		{
+			var (contacts, totalCount) = await _contactsService.SearchContactsAsync(
+				searchTerm,
+				contactStatusId,
+				pageNumber,
+				pageSize);
+
+			return Ok(new
+			{
+				Data = contacts,
+				TotalCount = totalCount,
+				PageNumber = pageNumber,
+				PageSize = pageSize
+			});
+		}
+
+		// GET: api/contacts/5
 		[HttpGet("{id}")]
-		public async Task<IActionResult> GetContactById(int id)
+		public async Task<ActionResult<Contact>> GetContact(int id)
 		{
 			var contact = await _contactsService.GetContactByIdAsync(id);
+
 			if (contact == null)
-				return NotFound();
+			{
+				return NotFound("Contact not found");
+			}
 
 			return Ok(contact);
 		}
 
+		// POST: api/contacts
 		[HttpPost]
-		public async Task<IActionResult> CreateContact(Contact contact)
+		public async Task<ActionResult<Contact>> CreateContact(Contact contact)
 		{
 			try
 			{
 				var createdContact = await _contactsService.CreateContactAsync(contact);
-				return CreatedAtAction(nameof(GetContactById), new { id = createdContact.ContactID }, createdContact);
+				return CreatedAtAction(nameof(GetContact), new { id = createdContact.ContactID }, createdContact);
 			}
-			catch (InvalidOperationException ex)
+			catch (ValidationException ex)
 			{
-				return BadRequest(ex.Message);
+				return BadRequest(new
+				{
+					Message = "Validation failed",
+					Errors = ProcessValidationErrors(ex.Errors)
+				});
 			}
 		}
 
+		// PUT: api/contacts/5
 		[HttpPut("{id}")]
 		public async Task<IActionResult> UpdateContact(int id, Contact contact)
 		{
-			if (id != contact.ContactID)
-				return BadRequest("Contact ID mismatch.");
-
 			try
 			{
-				var updatedContact = await _contactsService.UpdateContactAsync(contact);
-				if (updatedContact == null)
-					return NotFound();
+				if (id != contact.ContactID)
+				{
+					return BadRequest("Contact ID mismatch");
+				}
 
-				return Ok(updatedContact);
+				await _contactsService.UpdateContactAsync(contact);
+				return NoContent();
 			}
-			catch (InvalidOperationException ex)
+			catch (ValidationException ex)
 			{
-				return BadRequest(ex.Message);
+				return BadRequest(new
+				{
+					Message = "Validation failed",
+					Errors = ProcessValidationErrors(ex.Errors)
+				});
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound("Contact not found");
 			}
 		}
 
+		// DELETE: api/contacts/5
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteContact(int id)
 		{
-			var result = await _contactsService.DeleteContactAsync(id);
-			if (!result)
-				return NotFound();
-
-			return NoContent();
+			try
+			{
+				await _contactsService.DeleteContactAsync(id);
+				return NoContent();
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound("Contact not found");
+			}
 		}
 
-		[HttpPost("{contactId}/products/{productId}")]
-		public async Task<IActionResult> AddProductInterest(int contactId, int productId)
+		private List<string> ProcessValidationErrors(IEnumerable<ValidationFailure> errors)
 		{
-			//await _contactsService.AddProductInterestAsync(contactId, productId);
-			return NoContent();
-		}
-
-		[HttpDelete("products/{id}")]
-		public async Task<IActionResult> RemoveProductInterest(int id)
-		{
-			//await _contactsService.RemoveProductInterestAsync(id);
-			return NoContent();
+			var errorMessages = new List<string>();
+			foreach (var error in errors)
+			{
+				errorMessages.Add(error.ErrorMessage);
+			}
+			return errorMessages;
 		}
 	}
 }

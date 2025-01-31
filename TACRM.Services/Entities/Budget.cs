@@ -1,20 +1,21 @@
-
 namespace TACRM.Services.Entities
 {
 	public class Budget
 	{
 		public int BudgetID { get; set; }
-		public int ContactID { get; set; } // Foreign key to Contacts table
+		public int UserID { get; set; }
+		public int ContactID { get; set; }
 		public string BudgetName { get; set; }
 		public string BudgetDetails { get; set; }
-		public int Adults { get; set; } = 0;
-		public int Kids { get; set; } = 0;
-		public string KidsAges { get; set; } // Comma-separated list of ages
-		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+		public int Adults { get; set; }
+		public int Kids { get; set; }
+		public string KidsAges { get; set; }
+		public DateTime CreatedAt { get; set; }
+		public DateTime? UpdatedAt { get; set; }
 
-		// Navigation Properties
-		public virtual Contact Contact { get; set; } = null!;
-		public virtual ICollection<BudgetProduct> BudgetProducts { get; set; } = new List<BudgetProduct>();
+		// Navigation properties
+		public User User { get; set; }
+		public Contact Contact { get; set; }
+		public ICollection<BudgetProduct> BudgetProducts { get; set; }
 	}
 }

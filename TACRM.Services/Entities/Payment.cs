@@ -5,10 +5,12 @@ namespace TACRM.Services.Entities
 	{
 		public int PaymentID { get; set; }
 		public int SaleProductID { get; set; }
-		public SaleProduct SaleProduct { get; set; } // Navigation Property
-		public string Currency { get; set; }
+		public string Currency { get; set; } // USD, ARS
 		public decimal PaymentAmount { get; set; }
 		public DateTime PaymentDate { get; set; }
 		public string PaymentMethod { get; set; }
+
+		// Navigation properties
+		public SaleProduct SaleProduct { get; set; }
 	}
 }

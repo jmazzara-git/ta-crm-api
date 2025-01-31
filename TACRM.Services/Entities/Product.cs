@@ -1,18 +1,19 @@
-
 namespace TACRM.Services.Entities
 {
 	public class Product
 	{
 		public int ProductID { get; set; }
-		public int? UserID { get; set; } // Foreign key to Users (nullable for shared products)
-		public int ProductTypeID { get; set; } // Foreign key to ProductType
+		public int UserID { get; set; }
+		public int ProductTypeID { get; set; }
 		public string ProductName { get; set; }
-		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+		public string ProductDetails { get; set; }
+		public bool IsShared { get; set; }
+		public DateTime CreatedAt { get; set; }
+		public DateTime? UpdatedAt { get; set; }
+		public bool IsDisabled { get; set; }
 
-		// Navigation Properties
-		public virtual ProductType ProductType { get; set; }
-		public virtual User User { get; set; }
-		public ICollection<SaleProduct> SaleProducts { get; set; }
+		// Navigation properties
+		public User User { get; set; }
+		public ProductType ProductType { get; set; }
 	}
 }

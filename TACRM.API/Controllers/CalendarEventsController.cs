@@ -32,14 +32,14 @@ namespace TACRM.API.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateCalendarEvent([FromBody] CalendarEvent calendarEvent)
+		public async Task<IActionResult> CreateCalendarEvent([FromBody] Event calendarEvent)
 		{
 			var createdEvent = await _calendarEventsService.CreateCalendarEventAsync(calendarEvent);
 			return CreatedAtAction(nameof(GetCalendarEventById), new { id = createdEvent.EventID }, createdEvent);
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateCalendarEvent(int id, [FromBody] CalendarEvent calendarEvent)
+		public async Task<IActionResult> UpdateCalendarEvent(int id, [FromBody] Event calendarEvent)
 		{
 			if (id != calendarEvent.EventID) return BadRequest();
 

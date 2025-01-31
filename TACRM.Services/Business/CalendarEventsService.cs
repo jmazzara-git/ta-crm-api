@@ -5,10 +5,10 @@ namespace TACRM.Services.Core
 {
 	public interface ICalendarEventsService
 	{
-		Task<IEnumerable<CalendarEvent>> GetAllCalendarEventsAsync();
-		Task<CalendarEvent> GetCalendarEventByIdAsync(int id);
-		Task<CalendarEvent> CreateCalendarEventAsync(CalendarEvent calendarEvent);
-		Task<CalendarEvent> UpdateCalendarEventAsync(CalendarEvent calendarEvent);
+		Task<IEnumerable<Event>> GetAllCalendarEventsAsync();
+		Task<Event> GetCalendarEventByIdAsync(int id);
+		Task<Event> CreateCalendarEventAsync(Event calendarEvent);
+		Task<Event> UpdateCalendarEventAsync(Event calendarEvent);
 		Task<bool> DeleteCalendarEventAsync(int id);
 	}
 
@@ -21,24 +21,24 @@ namespace TACRM.Services.Core
 			_dbContext = dbContext;
 		}
 
-		public async Task<IEnumerable<CalendarEvent>> GetAllCalendarEventsAsync()
+		public async Task<IEnumerable<Event>> GetAllCalendarEventsAsync()
 		{
 			return await _dbContext.CalendarEvents.ToListAsync();
 		}
 
-		public async Task<CalendarEvent> GetCalendarEventByIdAsync(int id)
+		public async Task<Event> GetCalendarEventByIdAsync(int id)
 		{
 			return await _dbContext.CalendarEvents.FindAsync(id);
 		}
 
-		public async Task<CalendarEvent> CreateCalendarEventAsync(CalendarEvent calendarEvent)
+		public async Task<Event> CreateCalendarEventAsync(Event calendarEvent)
 		{
 			_dbContext.CalendarEvents.Add(calendarEvent);
 			await _dbContext.SaveChangesAsync();
 			return calendarEvent;
 		}
 
-		public async Task<CalendarEvent> UpdateCalendarEventAsync(CalendarEvent calendarEvent)
+		public async Task<Event> UpdateCalendarEventAsync(Event calendarEvent)
 		{
 			var existingEvent = await _dbContext.CalendarEvents.FindAsync(calendarEvent.EventID);
 			if (existingEvent == null) throw new KeyNotFoundException("Calendar event not found");

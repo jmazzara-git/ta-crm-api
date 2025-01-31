@@ -17,14 +17,14 @@ namespace TACRM.Services
 		public DbSet<ContactStatusTranslation> ContactStatusTranslations { get; set; }
 		public DbSet<Product> Products { get; set; }
 		public DbSet<Provider> Providers { get; set; }
-		public DbSet<ContactProductInterest> ContactProductInterests { get; set; }
+		public DbSet<ContactProduct> ContactProductInterests { get; set; }
 		public DbSet<Budget> Budgets { get; set; }
 		public DbSet<BudgetProduct> BudgetProducts { get; set; }
 		public DbSet<Sale> Sales { get; set; }
 		public DbSet<SaleProduct> SaleProducts { get; set; }
 		public DbSet<SaleTraveler> SaleTravelers { get; set; }
 		public DbSet<Payment> Payments { get; set; }
-		public DbSet<CalendarEvent> CalendarEvents { get; set; }
+		public DbSet<Event> CalendarEvents { get; set; }
 		public DbSet<Notification> Notifications { get; set; } // Add Notifications DbSet
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -39,10 +39,10 @@ namespace TACRM.Services
 				.HasKey(u => u.UserID);
 
 			modelBuilder.Entity<User>()
-				.HasOne(u => u.Agency)
-				.WithMany(a => a.Users)
-				.HasForeignKey(u => u.AgencyID)
-				.OnDelete(DeleteBehavior.SetNull);
+				.HasOne(u => u.Agency) // Navigation property
+				.WithMany(u => u.Agents) // Navigation property
+				.HasForeignKey(u => u.ParentUserID) // Database field
+				.OnDelete(DeleteBehavior.Restrict); // Or your preferred delete behavior
 
 			// Subscriptions
 			modelBuilder.Entity<Subscription>()
@@ -82,15 +82,15 @@ namespace TACRM.Services
 				.OnDelete(DeleteBehavior.Cascade);
 
 			// ContactProductInterest
-			modelBuilder.Entity<ContactProductInterest>()
+			modelBuilder.Entity<ContactProduct>()
 				.HasKey(cpi => cpi.ContactProductInterestID);
 
-			modelBuilder.Entity<ContactProductInterest>()
+			modelBuilder.Entity<ContactProduct>()
 				.HasOne(cpi => cpi.Contact)
 				.WithMany(c => c.ProductInterests)
 				.HasForeignKey(cpi => cpi.ContactID);
 
-			modelBuilder.Entity<ContactProductInterest>()
+			modelBuilder.Entity<ContactProduct>()
 				.HasOne(cpi => cpi.Product)
 				.WithMany()
 				.HasForeignKey(cpi => cpi.ProductID);
@@ -208,9 +208,9 @@ namespace TACRM.Services
 				.HasForeignKey(p => p.SaleProductID);
 
 			// CalendarEvents
-			modelBuilder.Entity<CalendarEvent>().HasKey(ce => ce.EventID);
+			modelBuilder.Entity<Event>().HasKey(ce => ce.EventID);
 
-			modelBuilder.Entity<CalendarEvent>()
+			modelBuilder.Entity<Event>()
 				.HasOne(ce => ce.User)
 				.WithMany(u => u.CalendarEvents)
 				.HasForeignKey(ce => ce.UserID);

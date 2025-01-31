@@ -1,0 +1,29 @@
+﻿<root>
+  <data name="FullNameRequired" xml:space="preserve">
+    <value>Full name is required.</value>
+  </data>
+  <data name="EmailRequired" xml:space="preserve">
+    <value>A valid email is required.</value>
+  </data>
+  <data name="EmailInvalidFormat" xml:space="preserve">
+    <value>Invalid email format.</value>
+  </data>
+  <data name="PhoneRequired" xml:space="preserve">
+    <value>Phone number is required.</value>
+  </data>
+  <data name="PhoneInvalidFormat" xml:space="preserve">
+    <value>Invalid phone number format.</value>
+  </data>
+  <data name="TravelDateValidation" xml:space="preserve">
+    <value>End date must be greater than or equal to start date.</value>
+  </data>
+<data name="FullNameMaxLength" xml:space="preserve">
+  <value>Full name cannot exceed 255 characters</value>
+</data>
+<data name="EmailMaxLength" xml:space="preserve">
+  <value>Email cannot exceed 255 characters</value>
+</data>
+<data name="PhoneMaxLength" xml:space="preserve">
+  <value>Phone number cannot exceed 50 characters</value>
+</data>  
+</root>

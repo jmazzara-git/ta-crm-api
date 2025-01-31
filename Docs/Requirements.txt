@@ -1,0 +1,195 @@
+## **TA-CRM Requirements Document**  
+**Version:** 1.6  
+**Last Updated:** _(Insert Date)_  
+
+---
+
+## **1. Introduction**
+### **1.1 Purpose**
+TA-CRM is a **SaaS-based CRM platform** tailored for **travel agents and agencies**, enabling **contact management, budgets, sales, payments, notifications**, and **analytics**.
+
+---
+
+### **1.2 Multi-Tenancy and User Model**
+- **Each user is a tenant** and pays a subscription to access the system.
+- **User Types**:
+  - **Agent**: Can be independent or part of an agency.
+  - **Agency**: Represents the agency owner and can share resources (e.g., products, providers).
+  - **Admin**: Has full control over the application and its users.
+
+---
+
+## **2. Features, Business Rules, and Validations**
+
+---
+
+### **2.1 Contact Management**
+#### **Key Features**
+- Manage **potential customers** and their contact details.
+- **Status-based tracking** (e.g., New, In Progress).
+- Notification preferences for **WhatsApp and Email**.
+- Filters and **text search** for quick contact access.
+
+#### **Fields**
+- **ContactID**: Auto-generated.
+- **UserID**: Owner of the contact.
+- **FullName**, **Email**, **Phone**: Contact details.
+- **ContactSourceID**, **ContactStatusID**: Links to predefined sources and statuses.
+- **Party Size** and **Travel Dates**.
+- **IsDisabled**: Soft-delete flag.
+
+#### **Business Rules**
+- Notifications require valid contact info.
+- Contacts are scoped to the owning user or agency.
+
+---
+
+### **2.2 Budgets**
+#### **Key Features**
+- Define **travel plans** and **party details** for contacts.
+- Add **multiple products** to each budget.
+- Manage budgets after creation (e.g., adding/removing products).
+
+#### **Fields**
+- **BudgetID**: Auto-generated.
+- **ContactID**, **BudgetName**: Required fields.
+- **Party Size**, **BudgetDetails**, and **IsDisabled** flag.
+
+#### **Business Rules**
+- Party size must match the provided `KidsAges`.
+- Budgets can be updated by their owners or agency owners.
+
+---
+
+### **2.3 Budget Products**
+#### **Key Features**
+- Add **product details** to budgets, including pricing, providers, and dates.
+- Manage **booking** information and commissions.
+
+#### **Fields**
+- **BudgetProductID**: Auto-generated.
+- **BudgetID**, **ProductID**: Required fields.
+- **Pricing** (`BasePrice`, `FinalPrice`, `Currency`).
+- **ProviderID**, **ProductDetails**, **Travel Dates**, and **IsDisabled** flag.
+
+#### **Business Rules**
+- `FinalPrice` must be greater than or equal to `BasePrice`.
+- Valid travel dates are required if both start and end dates are provided.
+
+---
+
+### **2.4 Products and Providers**
+#### **Key Features**
+- Products and providers belong to **users** and can be shared within an agency.
+- Products include **type**, **name**, and **details**.
+- Providers include **contact details**.
+
+#### **Fields**
+- **ProductID**, **ProviderID**: Auto-generated.
+- **UserID**: Owner of the product or provider.
+- **IsShared**: Indicates sharing within the agency.
+- **IsDisabled**: Allows disabling instead of deletion.
+
+#### **Business Rules**
+- Products/providers created by agency users can be shared.
+- Products/providers created by agents cannot be shared.
+
+---
+
+### **2.5 Sales & Reservations**
+#### **Key Features**
+- Convert budgets into **confirmed sales**.
+- Sales can include **multiple products** and track customer reservations.
+- **Payments and cancellations** are linked to products in the sale.
+
+#### **Fields**
+- **SaleID**: Auto-generated.
+- **UserID**, **ContactID**: Required.
+- **SaleGUID**: Public identifier for customer access.
+- **SaleName**, **Party Size**, and **IsDisabled** flag.
+
+#### **Business Rules**
+- Sales are restricted to the owner or agency owner.
+- Payments can be linked to specific products.
+
+---
+
+### **2.6 Payments**
+#### **Key Features**
+- Track **partial or full payments** for sales.
+- Payments include **amount, date, and currency**.
+
+#### **Fields**
+- **PaymentID**: Auto-generated.
+- **SaleProductID**: Required.
+- **PaymentAmount**, **Currency** (`USD`, `ARS`).
+- **PaymentDate**, **IsDisabled** flag.
+
+#### **Business Rules**
+- Payments must not exceed the total amount owed for the sale.
+
+---
+
+### **2.7 Calendar and Events**
+#### **Key Features**
+- Manage **trip schedules**, **reminders**, and **custom events**.
+- Events include **start and end times**.
+
+#### **Fields**
+- **EventID**: Auto-generated.
+- **UserID**, **EventType**, **Title**: Required.
+- **StartDateTime**, **EndDateTime**, **IsCustom** flag.
+
+#### **Business Rules**
+- Events must not overlap for the same resource (e.g., a trip or contact).
+
+---
+
+### **2.8 Notifications**
+#### **Key Features**
+- Send **automatic notifications** for events like payment due reminders.
+- Users can **enable/disable** notifications.
+
+#### **Fields**
+- **NotificationID**: Auto-generated.
+- **UserID**, **NotificationType**, **Message**: Required.
+- **IsRead**, **IsDisabled** flags.
+
+#### **Business Rules**
+- Notifications are triggered by system events.
+- Users control their notification preferences.
+
+---
+
+### **2.9 Subscriptions**
+#### **Key Features**
+- Users subscribe to gain access to the system.
+- Subscriptions track **plan name, start/end dates**, and **status**.
+
+#### **Fields**
+- **SubscriptionID**: Auto-generated.
+- **UserID**, **PlanName**, **Status** (`Active`, `Canceled`, `Expired`).
+- **StartDate**, **EndDate**, **IsDisabled** flag.
+
+#### **Business Rules**
+- Only active subscriptions allow access to the app.
+- Renewals update the subscription's end date.
+
+---
+
+## **3. System Requirements**
+#### **3.1 Backend**
+- **Framework**: .NET Core with C#
+- **Database**: PostgreSQL
+- **Authentication**: StackAuth
+- **Multi-Tenancy**: Users (Agents & Agencies) are tenants.
+
+#### **3.2 Frontend**
+- **Framework**: Next.js + React
+- **Styling**: TailwindCSS
+- **Features**:
+  - Dark Mode
+  - Infinite Scroll
+  - API Integration for dynamic updates
+
+---

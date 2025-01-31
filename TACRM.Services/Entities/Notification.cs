@@ -3,14 +3,16 @@
 	public class Notification
 	{
 		public int NotificationID { get; set; }
-		public int UserID { get; set; } // Foreign key to Users table
-		public string Message { get; set; } // Notification message
-		public string Type { get; set; } // Type of notification (e.g., Reminder, Alert)
-		public int? EntityID { get; set; } // Related entity ID (optional)
-		public string EntityType { get; set; } // Type of related entity (optional)
-		public bool IsRead { get; set; } = false; // Whether the notification has been read
-		public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Notification timestamp
+		public int UserID { get; set; }
+		public string NotificationType { get; set; }
+		public string Message { get; set; }
+		public bool IsRead { get; set; }
+		public int? EventID { get; set; }
+		public DateTime CreatedAt { get; set; }
+		public DateTime? UpdatedAt { get; set; }
 
-		public User User { get; set; } // Navigation property to User
+		// Navigation properties
+		public User User { get; set; }
+		public Event Event { get; set; }
 	}
 }

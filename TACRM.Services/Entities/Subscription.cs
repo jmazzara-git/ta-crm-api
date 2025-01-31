@@ -3,13 +3,15 @@
 	public class Subscription
 	{
 		public int SubscriptionID { get; set; }
-		public int UserID { get; set; } // Foreign Key
+		public int UserID { get; set; }
+		public string PlanName { get; set; }
 		public DateTime StartDate { get; set; }
-		public DateTime? EndDate { get; set; } // Nullable for active subscriptions
-		public string Status { get; set; } // Active, Cancelled, Expired
-		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+		public DateTime EndDate { get; set; }
+		public string Status { get; set; } // Active, Canceled, Expired
+		public DateTime CreatedAt { get; set; }
+		public DateTime? UpdatedAt { get; set; }
 
-		public User User { get; set; } // Navigation property
+		// Navigation properties
+		public User User { get; set; }
 	}
 }
