@@ -1,12 +1,13 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TACRM.Services.Entities
 {
+	[Table("ContactSource", Schema = "tacrm")]
 	public class ContactSource
 	{
-		public int ContactSourceID { get; set; }
+		[Key]
+		public int ContactSourceId { get; set; }
 		public string ContactSourceName { get; set; }
-
-		// Navigation properties
-		public ICollection<Contact> Contacts { get; set; }
 	}
 }

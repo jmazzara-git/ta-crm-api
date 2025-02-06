@@ -1,9 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace TACRM.Services.Entities
 {
+	[Table("Provider", Schema = "tacrm")]
 	public class Provider
 	{
-		public int ProviderID { get; set; }
-		public int UserID { get; set; }
+		[Key]
+		public int ProviderId { get; set; }
+		public int UserId { get; set; }
 		public string ProviderName { get; set; }
 		public string ProviderDetails { get; set; }
 		public bool IsShared { get; set; }
@@ -12,6 +17,7 @@ namespace TACRM.Services.Entities
 		public bool IsDisabled { get; set; }
 
 		// Navigation properties
+		[ForeignKey("UserId")]
 		public User User { get; set; }
 	}
 }

@@ -1,8 +1,0 @@
-﻿{
-    "RequiredEmail": "Email is required.",
-    "InvalidDates": "TravelDateEnd must be after TravelDateStart.",
-    "WhatsAppValidation": "WhatsApp notifications can only be enabled if a phone number is provided.",
-    "EmailValidation": "Email notifications can only be enabled if an email address is provided.",
-    "DuplicateContact": "A contact with this email already exists for the user.",
-    "ContactCreatedSuccessfully": "Contact has been created successfully."
-}

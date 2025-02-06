@@ -1,13 +1,12 @@
-﻿namespace TACRM.Services.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TACRM.Services.Entities
 {
+	[Table("ProductTypeTranslation", Schema = "tacrm")]
 	public class ProductTypeTranslation
 	{
-		public int TranslationID { get; set; }
-		public int ProductTypeID { get; set; }
-		public string LanguageCode { get; set; } // en, es
-		public string DisplayName { get; set; }
-
-		// Navigation properties
-		public ProductType ProductType { get; set; }
+		public ProductTypeEnum ProductType { get; set; }
+		public string DisplayNameEN { get; set; }
+		public string DisplayNameES { get; set; }
 	}
 }

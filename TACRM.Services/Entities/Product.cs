@@ -1,10 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace TACRM.Services.Entities
 {
+	[Table("Product", Schema = "tacrm")]
 	public class Product
 	{
-		public int ProductID { get; set; }
-		public int UserID { get; set; }
-		public int ProductTypeID { get; set; }
+		[Key]
+		public int ProductId { get; set; }
+		public int UserId { get; set; }
+		public ProductTypeEnum ProductType { get; set; }
 		public string ProductName { get; set; }
 		public string ProductDetails { get; set; }
 		public bool IsShared { get; set; }
@@ -13,7 +18,7 @@ namespace TACRM.Services.Entities
 		public bool IsDisabled { get; set; }
 
 		// Navigation properties
+		[ForeignKey("UserId")]
 		public User User { get; set; }
-		public ProductType ProductType { get; set; }
 	}
 }

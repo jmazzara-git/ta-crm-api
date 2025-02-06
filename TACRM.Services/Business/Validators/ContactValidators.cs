@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Localization;
-using TACRM.Services.Entities;
+using TACRM.Services.Dtos;
 using TACRM.Services.Resources;
 
 namespace TACRM.Services.Business.Validators
 {
-	public class ContactValidator : AbstractValidator<Contact>
+	public class ContactValidator : AbstractValidator<ContactDto>
 	{
 		public ContactValidator(IStringLocalizer<Messages> localizer)
 		{
@@ -29,7 +29,7 @@ namespace TACRM.Services.Business.Validators
 
 			// Travel Dates
 			RuleFor(x => x)
-				.Must(x => x.TravelDateEnd == null || x.TravelDateStart == null || x.TravelDateEnd >= x.TravelDateStart)
+				.Must(x => x.FromDate == null || x.ToDate == null || x.ToDate >= x.FromDate)
 				.WithMessage(localizer["TravelDateValidation"]);
 		}
 	}

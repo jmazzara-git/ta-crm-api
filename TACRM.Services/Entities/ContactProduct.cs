@@ -1,14 +1,18 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TACRM.Services.Entities
 {
+	[Table("ContactProduct", Schema = "tacrm")]
 	public class ContactProduct
 	{
-		public int ContactProductID { get; set; }
-		public int ContactID { get; set; } // Foreign key to Contacts
-		public int ProductID { get; set; } // Foreign key to Products
+		[Key]
+		public int ContactProductId { get; set; }
+		public int ContactId { get; set; }
+		public int ProductId { get; set; }
 
 		// Navigation Properties
-		public virtual Contact Contact { get; set; } = null!;
+		[ForeignKey("ProductId")]
 		public virtual Product Product { get; set; } = null!;
 	}
 }

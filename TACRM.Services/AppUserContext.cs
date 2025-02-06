@@ -4,7 +4,7 @@ using System.Security.Claims;
 namespace TACRM.Services
 {
 
-	public interface IUserContext
+	public interface IAppUserContext
 	{
 		int UserId { get; }
 		int GetUserId();
@@ -12,13 +12,13 @@ namespace TACRM.Services
 		int? GetAgencyId();
 	}
 
-	public class UserContext : IUserContext
+	public class AppUserContext : IAppUserContext
 	{
 		private readonly ClaimsPrincipal _user;
 
-		public int UserId => 1;
+		public int UserId => 2;
 
-		public UserContext(IHttpContextAccessor httpContextAccessor)
+		public AppUserContext(IHttpContextAccessor httpContextAccessor)
 		{
 			_user = httpContextAccessor.HttpContext?.User ?? throw new UnauthorizedAccessException("User not authenticated");
 		}

@@ -1,75 +1,71 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
-using TACRM.Services.Abstractions;
-using TACRM.Services.Entities;
+using TACRM.Services.Business.Abstractions;
+using TACRM.Services.Dtos;
 
 namespace TACRM.API.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class ContactsController : ControllerBase
+	public class ContactController(IContactService contactsService) : ControllerBase
 	{
-		private readonly IContactsService _contactsService;
-
-		public ContactsController(IContactsService contactsService)
-		{
-			_contactsService = contactsService;
-		}
+		private readonly IContactService _contactsService = contactsService;
 
 		// GET: api/contacts
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Contact>>> GetContacts()
+		public async Task<ActionResult<IEnumerable<ContactDto>>> GetContacts()
 		{
-			var contacts = await _contactsService.GetContactsAsync();
+			var contacts = await _contactsService.GetAsync();
 			return Ok(contacts);
 		}
 
-		// GET: api/contacts/search
+		// GET: api/contact/search
 		[HttpGet("search")]
 		public async Task<IActionResult> SearchContacts(
 			[FromQuery] string searchTerm = null,
-			[FromQuery] int? contactStatusId = null,
+			[FromQuery] string contactStatus = null,
 			[FromQuery] int pageNumber = 1,
 			[FromQuery] int pageSize = 10)
 		{
-			var (contacts, totalCount) = await _contactsService.SearchContactsAsync(
+			var (results, totalCount) = await _contactsService.SearchAsync(
 				searchTerm,
-				contactStatusId,
+				contactStatus,
 				pageNumber,
 				pageSize);
 
 			return Ok(new
 			{
-				Data = contacts,
+				Results = results,
 				TotalCount = totalCount,
 				PageNumber = pageNumber,
 				PageSize = pageSize
 			});
 		}
 
-		// GET: api/contacts/5
+		// GET: api/contact/5
 		[HttpGet("{id}")]
-		public async Task<ActionResult<Contact>> GetContact(int id)
+		public async Task<ActionResult<ContactDto>> GetContact(int id)
 		{
-			var contact = await _contactsService.GetContactByIdAsync(id);
+			var contact = await _contactsService.GetByIdAsync(id);
 
 			if (contact == null)
-			{
 				return NotFound("Contact not found");
-			}
 
 			return Ok(contact);
 		}
 
-		// POST: api/contacts
+		// POST: api/contact
 		[HttpPost]
-		public async Task<ActionResult<Contact>> CreateContact(Contact contact)
+		public async Task<ActionResult<ContactDto>> CreateContact(ContactDto dto)
 		{
+			if (dto == null)
+				return BadRequest();
+
 			try
 			{
-				var createdContact = await _contactsService.CreateContactAsync(contact);
-				return CreatedAtAction(nameof(GetContact), new { id = createdContact.ContactID }, createdContact);
+				var createdContact = await _contactsService.CreateAsync(dto);
+				return CreatedAtAction(nameof(GetContact), new { id = createdContact.ContactId }, createdContact);
 			}
 			catch (ValidationException ex)
 			{
@@ -81,18 +77,16 @@ namespace TACRM.API.Controllers
 			}
 		}
 
-		// PUT: api/contacts/5
-		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateContact(int id, Contact contact)
+		// PUT: api/contact
+		[HttpPut]
+		public async Task<IActionResult> UpdateContact(ContactDto dto)
 		{
+			if (dto == null)
+				return BadRequest();
+
 			try
 			{
-				if (id != contact.ContactID)
-				{
-					return BadRequest("Contact ID mismatch");
-				}
-
-				await _contactsService.UpdateContactAsync(contact);
+				await _contactsService.UpdateAsync(dto);
 				return NoContent();
 			}
 			catch (ValidationException ex)
@@ -109,13 +103,13 @@ namespace TACRM.API.Controllers
 			}
 		}
 
-		// DELETE: api/contacts/5
+		// DELETE: api/contact/[id]
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteContact(int id)
 		{
 			try
 			{
-				await _contactsService.DeleteContactAsync(id);
+				await _contactsService.DeleteAsync(id);
 				return NoContent();
 			}
 			catch (KeyNotFoundException)
@@ -124,7 +118,7 @@ namespace TACRM.API.Controllers
 			}
 		}
 
-		private List<string> ProcessValidationErrors(IEnumerable<ValidationFailure> errors)
+		private static List<string> ProcessValidationErrors(IEnumerable<ValidationFailure> errors)
 		{
 			var errorMessages = new List<string>();
 			foreach (var error in errors)

@@ -1,13 +1,12 @@
-﻿namespace TACRM.Services.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TACRM.Services.Entities
 {
+	[Table("ContactStatusTranslation", Schema = "tacrm")]
 	public class ContactStatusTranslation
 	{
-		public int TranslationID { get; set; }
-		public int ContactStatusID { get; set; }
-		public string LanguageCode { get; set; } // en, es
-		public string DisplayName { get; set; }
-
-		// Navigation properties
-		public ContactStatus ContactStatus { get; set; }
+		public ContactStatusEnum ContactStatus { get; set; }
+		public string DisplayNameEN { get; set; }
+		public string DisplayNameES { get; set; }
 	}
 }

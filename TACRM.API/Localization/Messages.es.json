@@ -1,8 +1,0 @@
-﻿{
-    "RequiredEmail": "El correo electrónico es obligatorio.",
-    "InvalidDates": "La fecha de finalización del viaje debe ser posterior a la fecha de inicio.",
-    "WhatsAppValidation": "Las notificaciones de WhatsApp solo se pueden activar si se proporciona un número de teléfono.",
-    "EmailValidation": "Las notificaciones de correo electrónico solo se pueden activar si se proporciona una dirección de correo electrónico.",
-    "DuplicateContact": "Ya existe un contacto con este correo electrónico para el usuario.",
-    "ContactCreatedSuccessfully": "El contacto ha sido creado exitosamente."
-}

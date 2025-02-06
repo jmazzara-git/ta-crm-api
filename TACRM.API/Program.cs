@@ -1,44 +1,59 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using TACRM.Services;
-using TACRM.Services.Abstractions;
 using TACRM.Services.Business;
+using TACRM.Services.Business.Abstractions;
 using TACRM.Services.Business.Validators;
-using TACRM.Services.Core;
-using TACRM.Services.Entities;
+using TACRM.Services.Dtos;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<TACRMDbContext>(options =>
-	options.UseNpgsql(connectionString));
+#region Services
+// Http context
+builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<ISaleProductsService, SaleProductsService>();
-builder.Services.AddScoped<ISalesService, SalesService>();
-builder.Services.AddScoped<ICalendarEventsService, CalendarEventsService>();
-builder.Services.AddScoped<IPaymentsService, PaymentsService>();
-builder.Services.AddScoped<IBudgetsService, BudgetsService>();
-builder.Services.AddScoped<IProvidersService, ProvidersService>();
-builder.Services.AddScoped<IUsersService, UsersService>();
-builder.Services.AddScoped<ISubscriptionsService, SubscriptionsService>();
-builder.Services.AddScoped<IUserContext, UserContext>();
+// Add DB context
+builder.Services.AddDbContext<AppDbContext>(options =>
+	options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
+
+// Add user context
+builder.Services.AddScoped<IAppUserContext, AppUserContext>();
+
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Contacts
-builder.Services.AddScoped<IValidator<Contact>, ContactValidator>();
-builder.Services.AddScoped<IContactsService, ContactsService>();
+builder.Services.AddScoped<IValidator<ContactDto>, ContactValidator>();
+builder.Services.AddScoped<IContactService, ContactService>();
 
 // Add localization
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-builder.Services.AddHttpContextAccessor();
+// Controllers
 builder.Services.AddControllers();
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// CORS
+builder.Services.AddCors(options =>
+{
+	options.AddDefaultPolicy(builder =>
+	{
+		builder.AllowAnyOrigin()
+			.AllowAnyMethod()
+			.AllowAnyHeader();
+	});
+});
+#endregion
+
+#region App
 
 var app = builder.Build();
 
 var supportedCultures = new[] { "en", "es" };
+
 var localizationOptions = new RequestLocalizationOptions()
 	.SetDefaultCulture("en")
 	.AddSupportedCultures(supportedCultures)
@@ -53,6 +68,8 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
+app.UseCors();
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -60,3 +77,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+#endregion
