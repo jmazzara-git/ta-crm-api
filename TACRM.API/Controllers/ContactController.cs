@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TACRM.Services.Business.Abstractions;
 using TACRM.Services.Dtos;
 
@@ -14,67 +12,26 @@ namespace TACRM.API.Controllers
 
 		// GET: api/contacts
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<ContactDto>>> GetContacts()
+		public async Task<IActionResult> GetContacts()
 		{
-			var contacts = await _contactsService.GetAsync();
-			return Ok(contacts);
-		}
-
-		// GET: api/contact/search
-		[HttpGet("search")]
-		public async Task<IActionResult> SearchContacts(
-			[FromQuery] string searchTerm = null,
-			[FromQuery] string contactStatus = null,
-			[FromQuery] int pageNumber = 1,
-			[FromQuery] int pageSize = 10)
-		{
-			var (results, totalCount) = await _contactsService.SearchAsync(
-				searchTerm,
-				contactStatus,
-				pageNumber,
-				pageSize);
-
-			return Ok(new
-			{
-				Results = results,
-				TotalCount = totalCount,
-				PageNumber = pageNumber,
-				PageSize = pageSize
-			});
+			return Ok(await _contactsService.GetListAsync());
 		}
 
 		// GET: api/contact/5
 		[HttpGet("{id}")]
-		public async Task<ActionResult<ContactDto>> GetContact(int id)
+		public async Task<IActionResult> GetContact(int id)
 		{
-			var contact = await _contactsService.GetByIdAsync(id);
-
-			if (contact == null)
-				return NotFound("Contact not found");
-
-			return Ok(contact);
+			return Ok(await _contactsService.GetByIdAsync(id));
 		}
 
 		// POST: api/contact
 		[HttpPost]
-		public async Task<ActionResult<ContactDto>> CreateContact(ContactDto dto)
+		public async Task<IActionResult> CreateContact(ContactDto dto)
 		{
 			if (dto == null)
 				return BadRequest();
 
-			try
-			{
-				var createdContact = await _contactsService.CreateAsync(dto);
-				return CreatedAtAction(nameof(GetContact), new { id = createdContact.ContactId }, createdContact);
-			}
-			catch (ValidationException ex)
-			{
-				return BadRequest(new
-				{
-					Message = "Validation failed",
-					Errors = ProcessValidationErrors(ex.Errors)
-				});
-			}
+			return Ok(await _contactsService.CreateAsync(dto));
 		}
 
 		// PUT: api/contact
@@ -84,48 +41,38 @@ namespace TACRM.API.Controllers
 			if (dto == null)
 				return BadRequest();
 
-			try
-			{
-				await _contactsService.UpdateAsync(dto);
-				return NoContent();
-			}
-			catch (ValidationException ex)
-			{
-				return BadRequest(new
-				{
-					Message = "Validation failed",
-					Errors = ProcessValidationErrors(ex.Errors)
-				});
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound("Contact not found");
-			}
+			return Ok(await _contactsService.UpdateAsync(dto));
 		}
 
 		// DELETE: api/contact/[id]
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteContact(int id)
 		{
-			try
-			{
-				await _contactsService.DeleteAsync(id);
-				return NoContent();
-			}
-			catch (KeyNotFoundException)
-			{
-				return NotFound("Contact not found");
-			}
+			return Ok(await _contactsService.DeleteAsync(id));
 		}
 
-		private static List<string> ProcessValidationErrors(IEnumerable<ValidationFailure> errors)
+		// POST: api/contact/search
+		[HttpPost("search")]
+		public async Task<IActionResult> SearchContacts(ContactSearchRequestDto dto)
 		{
-			var errorMessages = new List<string>();
-			foreach (var error in errors)
-			{
-				errorMessages.Add(error.ErrorMessage);
-			}
-			return errorMessages;
+			if (dto == null)
+				return BadRequest();
+
+			return Ok(await _contactsService.SearchAsync(dto));
+		}
+
+		// GET: api/contact/sources
+		[HttpGet("sources")]
+		public async Task<IActionResult> GetContactSources()
+		{
+			return Ok(await _contactsService.GetContactSourcesAsync());
+		}
+
+		// GET: api/contact/statuses
+		[HttpGet("statuses")]
+		public async Task<IActionResult> GetContactStatuses()
+		{
+			return Ok(await _contactsService.GetContactStatusesAsync());
 		}
 	}
 }

@@ -1,13 +1,12 @@
 ﻿using FluentValidation;
-using Microsoft.Extensions.Localization;
 using TACRM.Services.Entities;
-using TACRM.Services.Resources;
+using TACRM.Services.Localization;
 
 namespace TACRM.Services.Business.Validators
 {
 	public class BudgetValidator : AbstractValidator<Budget>
 	{
-		public BudgetValidator(IStringLocalizer<Messages> localizer)
+		public BudgetValidator(Localizer localizer)
 		{
 			RuleFor(b => b.BudgetName)
 				.NotEmpty().WithMessage(localizer["BudgetNameRequired"])

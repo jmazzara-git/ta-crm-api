@@ -16,14 +16,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Resources\Messages.es.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <CustomToolNamespace>TACRM.Services.Resources</CustomToolNamespace>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Resources\Messages.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <CustomToolNamespace>TACRM.Services.Resources</CustomToolNamespace>
-    </EmbeddedResource>
+    <None Update="Localization\Messages.en.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Localization\Messages.es.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

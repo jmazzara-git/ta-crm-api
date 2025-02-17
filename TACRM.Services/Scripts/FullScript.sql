@@ -1,38 +1,36 @@
 -- Create Enums
 CREATE TYPE user_type AS ENUM ('Agent', 'Agency', 'Admin');
-CREATE TYPE contact_status AS ENUM ('New', 'InProgress', 'Won', 'Future', 'Lost');
-CREATE TYPE product_type AS ENUM ('Package', 'Hotel', 'Ticket', 'Activity', 'Car', 'Insurance', 'Flight');
 
 
--- Table for Contacts Status localization
-CREATE TABLE "ContactStatusTranslation" (
-    "ContactStatus" contact_status PRIMARY KEY,
-    "DisplayNameEN" TEXT NOT NULL,
-    "DisplayNameES" TEXT NOT NULL
+-- Table for Contacts Status 
+CREATE TABLE "ContactStatus" (
+    "ContactStatusCode" TEXT PRIMARY KEY,
+    "ContactStatusNameEN" TEXT NOT NULL,
+    "ContactStatusNameES" TEXT NOT NULL
 );
 
-INSERT INTO "ContactStatusTranslation" ("ContactStatus", "DisplayNameEN", "DisplayNameES") VALUES
-('New', 'New', 'Nuevo'),
-('InProgress', 'In Progress', 'En Progreso'),
-('Won', 'Won', 'Ganado'),
-('Future', 'Future', 'Futuro'),
-('Lost', 'Lost', 'Perdido');
+INSERT INTO "ContactStatus" ("ContactStatusCode", "ContactStatusNameEN", "ContactStatusNameES") VALUES
+('NEW', 'New', 'Nuevo'),
+('WIP', 'In Progress', 'En Progreso'),
+('WON', 'Won', 'Ganado'),
+('FUTURE', 'Future', 'Futuro'),
+('LOST', 'Lost', 'Perdido');
 
--- Table for Product Type localization
-CREATE TABLE "ProductTypeTranslation" (
-    "ProductType" product_type PRIMARY KEY,
-    "DisplayNameEN" TEXT NOT NULL,
-    "DisplayNameES" TEXT NOT NULL
+-- Table for Product Type 
+CREATE TABLE "ProductType" (
+    "ProductTypeCode" TEXT PRIMARY KEY,
+    "ProductTypeNameEN" TEXT NOT NULL,
+    "ProductTypeNameES" TEXT NOT NULL
 );
 
-INSERT INTO "ProductTypeTranslation" ("ProductType", "DisplayNameEN", "DisplayNameES") VALUES
-('Package', 'Package', 'Paquete'),
-('Hotel', 'Hotel', 'Hotel'),
-('Ticket', 'Ticket', 'Boleto'),
-('Activity', 'Activity', 'Actividad'),
-('Car', 'Car', 'Auto'),
-('Insurance', 'Insurance', 'Seguro'),
-('Flight', 'Flight', 'Vuelo');
+INSERT INTO "ProductType" ("ProductTypeCode", "ProductTypeNameEN", "ProductTypeNameES") VALUES
+('PACKAGE', 'Package', 'Paquete'),
+('HOTEL', 'Hotel', 'Hotel'),
+('TICKET', 'Ticket', 'Boleto'),
+('ACTIVITY', 'Activity', 'Actividad'),
+('CAR', 'Car', 'Auto'),
+('INSURANCE', 'Insurance', 'Seguro'),
+('FLIGHT', 'Flight', 'Vuelo');
 
 
 --
@@ -65,14 +63,15 @@ CREATE TABLE "User" (
 CREATE TABLE "Product" (
     "ProductId" SERIAL PRIMARY KEY,
     "UserId" INT NOT NULL,
-    "ProductType" product_type NOT NULL,
+    "ProductTypeCode" TEXT NOT NULL,
     "ProductName" TEXT NOT NULL,
     "ProductDetails" TEXT NULL,
     "IsShared" BOOLEAN DEFAULT FALSE,
     "CreatedAt" TIMESTAMP NOT NULL,
     "UpdatedAt" TIMESTAMP,
     "IsDisabled" BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY ("UserId") REFERENCES "User"("UserId")
+    FOREIGN KEY ("UserId") REFERENCES "User"("UserId"),
+    FOREIGN KEY ("ProductTypeCode") REFERENCES "ProductType"("ProductTypeCode")
 );
 
 -- Table for Providers
@@ -91,20 +90,20 @@ CREATE TABLE "Provider" (
 -- Table for Contacts Sources
 CREATE TABLE "ContactSource" (
     "ContactSourceId" SERIAL PRIMARY KEY,
-    "ContactSourceName" TEXT NOT NULL
+    "ContactSourceNameEN" TEXT NOT NULL,
+    "ContactSourceNameES" TEXT NOT NULL
 );
 
-INSERT INTO "ContactSource" ("ContactSourceName") VALUES 
-('WhatsApp'),
-('Instagram'),
-('Website'),
-('Paxy');
+INSERT INTO "ContactSource" ("ContactSourceNameEN", "ContactSourceNameES") VALUES 
+('WhatsApp', 'WhatsApp'),
+('Instagram', 'Instagram'),
+('Paxy', 'Paxy');
 
 -- Table for Contacts
 CREATE TABLE "Contact" (
     "ContactId" SERIAL PRIMARY KEY,
     "UserId" INT NOT NULL,
-    "ContactStatus" contact_status NOT NULL DEFAULT 'New',
+    "ContactStatusCode" TEXT NOT NULL DEFAULT 'NEW',
     "FullName" TEXT NOT NULL,
     "Email" TEXT,
     "Phone" TEXT,
@@ -121,6 +120,7 @@ CREATE TABLE "Contact" (
     "UpdatedAt" TIMESTAMP,
     "IsDisabled" BOOLEAN DEFAULT FALSE,
     FOREIGN KEY ("UserId") REFERENCES "User"("UserId"),
+    FOREIGN KEY ("ContactStatusCode") REFERENCES "ContactStatus"("ContactStatusCode"),
     FOREIGN KEY ("ContactSourceId") REFERENCES "ContactSource"("ContactSourceId")
 );
 

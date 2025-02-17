@@ -9,7 +9,7 @@ namespace TACRM.Services.Entities
 		[Key]
 		public int ContactId { get; set; }
 		public int UserId { get; set; }
-		public ContactStatusEnum ContactStatus { get; set; }
+		public string ContactStatusCode { get; set; }
 		public string FullName { get; set; }
 		public string Email { get; set; }
 		public string Phone { get; set; }
@@ -31,6 +31,8 @@ namespace TACRM.Services.Entities
 		public User User { get; set; }
 		[ForeignKey("ContactSourceId")]
 		public ContactSource Source { get; set; }
+		[ForeignKey("ContactStatusCode")]
+		public ContactStatus Status { get; set; }
 		public ICollection<ContactProduct> Products { get; set; } = [];
 		public ICollection<Budget> Budgets { get; set; } = [];
 		public ICollection<Sale> Sales { get; set; } = [];

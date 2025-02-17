@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using TACRM.Services.Enums;
 
 namespace TACRM.Services
 {
@@ -7,6 +8,8 @@ namespace TACRM.Services
 	public interface IAppUserContext
 	{
 		int UserId { get; }
+		LangEnum Lang { get; }
+		bool EN => Lang == LangEnum.EN;
 		int GetUserId();
 		string GetUserType();
 		int? GetAgencyId();
@@ -17,6 +20,8 @@ namespace TACRM.Services
 		private readonly ClaimsPrincipal _user;
 
 		public int UserId => 2;
+
+		public LangEnum Lang => LangEnum.EN;
 
 		public AppUserContext(IHttpContextAccessor httpContextAccessor)
 		{

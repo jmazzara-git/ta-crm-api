@@ -8,6 +8,7 @@ namespace TACRM.Services.Entities
 	{
 		[Key]
 		public int ContactSourceId { get; set; }
-		public string ContactSourceName { get; set; }
+		public string ContactSourceNameEN { get; set; }
+		public string ContactSourceNameES { get; set; }
 	}
 }

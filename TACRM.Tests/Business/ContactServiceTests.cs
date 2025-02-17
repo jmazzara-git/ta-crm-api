@@ -2,11 +2,14 @@
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Moq;
 using TACRM.Services;
 using TACRM.Services.Business;
 using TACRM.Services.Dtos;
 using TACRM.Services.Entities;
+using TACRM.Services.Enums;
+using TACRM.Services.Localization;
 using Xunit;
 
 namespace TACRM.Tests.Business
@@ -17,6 +20,7 @@ namespace TACRM.Tests.Business
 		private readonly AppDbContext _dbContext;
 		private readonly Mock<IAppUserContext> _mockUserContext;
 		private readonly Mock<IValidator<ContactDto>> _mockValidator;
+		private readonly Mock<IStringLocalizer<Localizer>> _mockLocalizer;
 		private readonly ContactService _contactsService;
 		private readonly IMapper _mapper;
 		private readonly Random _random;
@@ -32,6 +36,8 @@ namespace TACRM.Tests.Business
 
 			_mockUserContext = new Mock<IAppUserContext>();
 			_mockValidator = new Mock<IValidator<ContactDto>>();
+			_mockLocalizer = new Mock<IStringLocalizer<Localizer>>();
+
 			_random = new Random();
 
 			var config = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>());
@@ -41,7 +47,8 @@ namespace TACRM.Tests.Business
 				_dbContext,
 				_mockUserContext.Object,
 				_mapper,
-				_mockValidator.Object);
+				_mockValidator.Object,
+				_mockLocalizer.Object);
 		}
 
 		[Fact]
@@ -61,10 +68,10 @@ namespace TACRM.Tests.Business
 			await _dbContext.SaveChangesAsync();
 
 			// Act
-			var result = await _contactsService.GetAsync();
+			var result = await _contactsService.GetListAsync();
 
 			// Assert
-			Assert.Equal(2, result.Count());
+			Assert.Equal(2, result.Data.Count());
 		}
 
 		[Fact]
@@ -85,7 +92,7 @@ namespace TACRM.Tests.Business
 
 			// Assert
 			Assert.NotNull(result);
-			Assert.Equal(contactId, result.ContactId);
+			Assert.Equal(contactId, result.Data.ContactId);
 		}
 
 		[Fact]
@@ -104,7 +111,7 @@ namespace TACRM.Tests.Business
 			var result = await _contactsService.CreateAsync(contactDto);
 
 			// Assert
-			Assert.Equal(userId, result.UserId);
+			Assert.Equal(userId, result.Data.UserId);
 			Assert.Contains(_dbContext.Contact, c => c.FullName == "John Doe");
 		}
 
@@ -163,19 +170,23 @@ namespace TACRM.Tests.Business
 
 			var contacts = new List<Contact>
 			{
-				new Contact { ContactId = _random.Next(1, 10000), UserId = userId, FullName = "John Doe", ContactStatus = ContactStatusEnum.New },
-				new Contact { ContactId = _random.Next(1, 10000), UserId = userId, FullName = "Jane Doe", ContactStatus = ContactStatusEnum.InProgress }
+				new Contact { ContactId = _random.Next(1, 10000), UserId = userId, FullName = "John Doe", ContactStatusCode = ContactStatusEnum.NEW.ToString() },
+				new Contact { ContactId = _random.Next(1, 10000), UserId = userId, FullName = "Jane Doe", ContactStatusCode = ContactStatusEnum.WIP.ToString() }
 			};
 
 			_dbContext.Contact.AddRange(contacts);
 			await _dbContext.SaveChangesAsync();
 
 			// Act
-			var (results, totalCount) = await _contactsService.SearchAsync("John", "New", 1, 10);
+			var result = await _contactsService.SearchAsync(new ContactSearchRequestDto
+			{
+				SearchTerm = "John",
+				ContactStatusCode = ContactStatusEnum.NEW.ToString()
+			});
 
 			// Assert
-			Assert.Single(results);
-			Assert.Equal(1, totalCount);
+			Assert.Single(result.Data.Results);
+			Assert.Equal(1, result.Data.Total);
 		}
 	}
 }

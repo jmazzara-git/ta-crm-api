@@ -4,15 +4,12 @@ INSERT INTO "User" ("UserType", "IdpId", "Email", "UserName", "CreatedAt") VALUE
 ('Agent'::tacrm.user_type, '626ba612-f639-4030-9275-220a427dc311', 'mazzarajuan@gmail.com', 'Paxy Agent', CURRENT_TIMESTAMP) -- Idependent Agent
 
 -- Insert test data into Contacts table
-INSERT INTO "Contact" (
-    "UserId", "ContactStatus", "FullName", "Email", "Phone", "FromDate", "ToDate", 
-    "Adults", "Kids", "KidsAges", "Comments", "EnableWhatsAppNotifications", 
-    "EnableEmailNotifications", "ContactSourceId", "CreatedAt") VALUES
-(2, 'InProgress', 'Patricia Jensen', 'patricia.jensen@example.com', '512-555-0190', '2025-05-17', '2025-06-25', 3, 2, '5,3', 'Looking for family vacation packages', FALSE, FALSE, 3, CURRENT_TIMESTAMP),
-(2, 'New', 'Anthony Knight', NULL, '201-555-0137', NULL, '2025-07-09', 1, 0, '', 'Business trip request', FALSE, FALSE, 1, CURRENT_TIMESTAMP),
-(2, 'Future', 'Andrea Lawson', 'andrea.lawson@example.com', '406-555-0119', NULL, NULL, 2, 1, '4', 'Considering trips for next year', FALSE, FALSE, 4, CURRENT_TIMESTAMP),
-(2, 'Won', 'Bruce Hamilton', 'bruce.hamilton@example.com', NULL, '2025-03-01', '2025-03-10', 2, 0, '', 'Flight and hotel booking confirmed', FALSE, FALSE, 2, CURRENT_TIMESTAMP),
-(2, 'Lost', 'Rebecca Moore', 'rebecca.moore@example.com', '315-555-0198', '2025-08-12', '2025-08-20', 0, 0, '', 'Lost lead due to pricing concerns', FALSE, FALSE, 2, CURRENT_TIMESTAMP)
+INSERT INTO "Contact" ("UserId", "ContactStatusCode", "FullName", "Email", "Phone", "FromDate", "ToDate", "Adults", "Kids", "KidsAges", "CreatedAt") VALUES
+(2, 'WIP', 'Patricia Jensen', 'patricia.jensen@example.com', '512-555-0190', '2025-05-17', '2025-06-25', 3, 2, '5,3', CURRENT_TIMESTAMP),
+(2, 'NEW', 'Anthony Knight', NULL, '201-555-0137', NULL, '2025-07-09', 1, 0, '', CURRENT_TIMESTAMP),
+(2, 'FUTURE', 'Andrea Lawson', 'andrea.lawson@example.com', '406-555-0119', NULL, NULL, 2, 1, '4', CURRENT_TIMESTAMP),
+(2, 'WON', 'Bruce Hamilton', 'bruce.hamilton@example.com', NULL, '2025-03-01', '2025-03-10', 2, 0, '', CURRENT_TIMESTAMP),
+(2, 'LOST', 'Rebecca Moore', 'rebecca.moore@example.com', '315-555-0198', '2025-08-12', '2025-08-20', 0, 0, '', CURRENT_TIMESTAMP)
 
 
 

@@ -1,10 +1,12 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using TACRM.Services;
 using TACRM.Services.Business;
 using TACRM.Services.Business.Abstractions;
 using TACRM.Services.Business.Validators;
 using TACRM.Services.Dtos;
+using TACRM.Services.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,12 +24,13 @@ builder.Services.AddScoped<IAppUserContext, AppUserContext>();
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+// Add localization
+builder.Services.AddSingleton<IStringLocalizerFactory>(new LocalizerFactory(Path.Combine(AppContext.BaseDirectory, "Localization")));
+builder.Services.AddLocalization();
+
 // Contacts
 builder.Services.AddScoped<IValidator<ContactDto>, ContactValidator>();
 builder.Services.AddScoped<IContactService, ContactService>();
-
-// Add localization
-builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 // Controllers
 builder.Services.AddControllers();
@@ -52,14 +55,15 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Configure request localization
 var supportedCultures = new[] { "en", "es" };
-
 var localizationOptions = new RequestLocalizationOptions()
 	.SetDefaultCulture("en")
 	.AddSupportedCultures(supportedCultures)
 	.AddSupportedUICultures(supportedCultures);
 
 app.UseRequestLocalization(localizationOptions);
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

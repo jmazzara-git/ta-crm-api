@@ -1,11 +1,13 @@
-﻿namespace TACRM.Services.Business.Abstractions
+﻿using TACRM.Services.Dtos;
+
+namespace TACRM.Services.Business.Abstractions
 {
 	public interface IGenericService<T> where T : class
 	{
-		Task<IEnumerable<T>> GetAsync();
-		Task<T> GetByIdAsync(int id);
-		Task<T> CreateAsync(T dto);
-		Task UpdateAsync(T dto);
-		Task DeleteAsync(int id);
+		Task<ApiResponse<IEnumerable<T>>> GetListAsync();
+		Task<ApiResponse<T>> GetByIdAsync(int id);
+		Task<ApiResponse<T>> CreateAsync(T dto);
+		Task<ApiResponse<T>> UpdateAsync(T dto);
+		Task<ApiResponse> DeleteAsync(int id);
 	}
 }
