@@ -141,6 +141,8 @@ namespace TACRM.Services.Business
 
 		public async Task<ApiResponse> DeleteAsync(int id)
 		{
+			// TODO: Validate if it's being used
+
 			var response = new ApiResponse();
 
 			var contact = await _db

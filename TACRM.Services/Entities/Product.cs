@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using TACRM.Services.Enums;
 
 namespace TACRM.Services.Entities
 {
@@ -10,7 +9,7 @@ namespace TACRM.Services.Entities
 		[Key]
 		public int ProductId { get; set; }
 		public int UserId { get; set; }
-		public ProductTypeEnum ProductType { get; set; }
+		public string ProductTypeCode { get; set; }
 		public string ProductName { get; set; }
 		public string ProductDetails { get; set; }
 		public bool IsShared { get; set; }
