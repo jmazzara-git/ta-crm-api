@@ -8,7 +8,14 @@ namespace TACRM.Services
 	{
 		public MappingProfile()
 		{
-			CreateMap<Contact, ContactDto>().ReverseMap();
+			// Map from Contact to ContactDto
+			CreateMap<Contact, ContactDto>()
+				.ForMember(dest => dest.KidsAges, opt => opt.MapFrom(src => src.KidsAges.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray()));
+
+			// Map from ContactDto to Contact
+			CreateMap<ContactDto, Contact>()
+				.ForMember(dest => dest.KidsAges, opt => opt.MapFrom(src => string.Join(",", src.KidsAges)));
+
 		}
 	}
 }

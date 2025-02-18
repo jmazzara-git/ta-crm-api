@@ -16,17 +16,17 @@ namespace TACRM.Services.Business.Validators
 			// Full Name
 			RuleFor(x => x.FullName)
 				.NotEmpty().WithMessage(localizer["FullNameRequired"])
-				.MaximumLength(50).WithMessage(localizer["FullNameLen"]);
+				.MaximumLength(50).WithMessage(localizer["FullNameLength"]);
 
 			// Email
 			RuleFor(x => x.Email)
-				.MaximumLength(250).WithMessage(localizer["EmailLen"])
+				.MaximumLength(250).WithMessage(localizer["EmailLength"])
 				.EmailAddress().WithMessage(localizer["EmailFormat"])
 				.When(x => !string.IsNullOrWhiteSpace(x.Email));
 
 			// Phone
 			RuleFor(x => x.Phone)
-				.MaximumLength(50).WithMessage(localizer["PhoneLen"])
+				.MaximumLength(50).WithMessage(localizer["PhoneLength"])
 				.Matches(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$").WithMessage(localizer["PhoneFormat"])
 				.When(x => !string.IsNullOrWhiteSpace(x.Phone));
 
@@ -51,12 +51,13 @@ namespace TACRM.Services.Business.Validators
 
 			// Adults
 			RuleFor(x => x.Adults)
-				.GreaterThan(0)
-				.LessThanOrEqualTo(10);
+				.GreaterThanOrEqualTo(1).WithMessage(localizer["AdultsRequired"])
+				.LessThanOrEqualTo(10).WithMessage(localizer["AdultsRequired"]); ;
 
 			// Kids
 			RuleFor(x => x.Kids)
-				.LessThanOrEqualTo(10);
+				.GreaterThanOrEqualTo(0).WithMessage(localizer["KidsRequired"])
+				.LessThanOrEqualTo(10).WithMessage(localizer["KidsRequired"]);
 
 			// Kids Ages
 			RuleFor(x => x)

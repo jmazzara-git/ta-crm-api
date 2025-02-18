@@ -1,1 +1,16 @@
 ﻿ContactNotFound=Contact not found
+FullNameRequired=Full name is required
+FullNameLength=Full name must be less than 50 characters
+EmailLength=Email must be less than 250 characters
+EmailFormat=Invalid email format
+PhoneLength=Phone number must be less than 50 characters
+PhoneFormat=Invalid phone number format
+ContactSourceInvalid=The specified contact source does not exist
+ContactStatusInvalid=The specified contact status does not exist
+FromDateRequired=From date is required
+ToDateRequired=To date is required
+DateRangeInvalid=To date must be greater than or equal to from date
+AdultsRequired=Adults is required and must be between 1 and 10
+KidsRequired=Kids is required and must be between 0 and 10
+KidsAgesRequired=Kids ages is required
+CommentsLength=Comments must be less than 500 characters

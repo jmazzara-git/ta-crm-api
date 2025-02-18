@@ -1,1 +1,16 @@
 ﻿ContactNotFound=Contacto no encontrado
+FullNameRequired=Nombre completo es requerido
+FullNameLength=Nombre completo debe tener entre 1 y 50 caracteres
+EmailLength=Email debe tener entre 1 y 250 caracteres
+EmailFormat=Formato de email es inválido
+PhoneLength=Teléfono debe tener entre 1 y 50 caracteres
+PhoneFormat=Formato de teléfono es inválido
+ContactSourceInvalid=Fuente de contacto es inválida
+ContactStatusInvalid=Estado de contacto es inválido
+FromDateRequired=Fecha de inicio es requerida
+ToDateRequired=Fecha de fin es requerida
+DateRangeInvalid=Rango de fechas es inválido
+AdultsRequired=Adultos es requerido y debe estar entre 1 y 10
+KidsRequired=Niños es requerido y debe estar entre 0 y 10
+KidsAgesRequired=Edades de niños es requerido
+CommentsLength=Comentarios deben contener menos de 500 caracteres

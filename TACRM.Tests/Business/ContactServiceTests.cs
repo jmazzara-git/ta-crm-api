@@ -17,11 +17,13 @@ namespace TACRM.Tests.Business
 	[Collection("ContactServiceTests")]
 	public class ContactServiceTests
 	{
+		private readonly ContactService _contactsService;
 		private readonly AppDbContext _dbContext;
+
 		private readonly Mock<IAppUserContext> _mockUserContext;
 		private readonly Mock<IValidator<ContactDto>> _mockValidator;
 		private readonly Mock<IStringLocalizer<Localizer>> _mockLocalizer;
-		private readonly ContactService _contactsService;
+
 		private readonly IMapper _mapper;
 		private readonly Random _random;
 
@@ -52,7 +54,7 @@ namespace TACRM.Tests.Business
 		}
 
 		[Fact]
-		public async Task GetAsync_ShouldReturnContacts()
+		public async Task GetListAsync_ShouldReturnContacts()
 		{
 			// Arrange
 			var userId = 1;
